@@ -54,11 +54,26 @@ class NonOverlapConstraints : public CompoundConstraint {
     public:
         NonOverlapConstraints(NonOverlapConstraintExemptions *exemptions,
                 unsigned int priority = PRIORITY_NONOVERLAP);
-        // Group is used to determine which objects should be made not to 
-        // overlap with this one -- only objects in the same group.
-        // This is useful for clusters.
+        /**
+         * @brief Use this method to add all the shapes between which you want
+         *        to prevent overlaps.
+         * @param id     This will be used as index into both the vars and
+         *               boundingBoxes vectors when you call the
+         *               generateSeparationConstraints method.
+         * @param halfW  If you add two shapes with half-widths hwi and hwj, then
+         *               if a horizontal separation constraint is generated between
+         *               them its gap will be hwi + hwj.
+         * @param halfH  Similar to halfW.
+         * @param group  Assign a group number to this shape. A separation constraint
+         *               will be generated between two shapes only if they belong to
+         *               the same group. This is useful for clusters.
+         */
         void addShape(unsigned id, double halfW, double halfH, 
                 unsigned int group = 1);
+        void addShapeWithExemptions(unsigned id, double halfW, double halfH,
+                std::set<unsigned> exemptions, unsigned int group = 1);
+        void resizeShape(unsigned id, double halfW, double halfH);
+        void removeShape(unsigned id);
         void addCluster(Cluster *cluster, unsigned int group);
         void computeAndSortOverlap(vpsc::Variables vs[]);
         void markCurrSubConstraintAsActive(const bool satisfiable);
@@ -72,6 +87,23 @@ class NonOverlapConstraints : public CompoundConstraint {
         void generateVariables(const vpsc::Dim dim, vpsc::Variables& vars);
         void generateSeparationConstraints(const vpsc::Dim dim, 
                 vpsc::Variables& vars, vpsc::Constraints& gcs);
+        /**
+         * @brief Generate separation constraints in one dimension, to ensure
+         *        nonoverlap between all shapes in that dimension.
+         * @param dim   The dimension for which to generate constraints.
+         * @param vars  The variables between which the constraints will hold.
+         * @param gcs   The generated constraints will be added to this vector.
+         * @param boundingBoxes  For those id's corresponding to added shapes
+         *      (not clusters), the rectangle boundingBox[id] will be consulted
+         *      in order to determine:
+         *      (1) whether a separation constraint is called for, i.e. whether the
+         *          shapes in question span any of the same coods in the dimension
+         *          opposite to dim;
+         *      (2) which var is left and which is right in the separation constraint.
+         *      Note however that the dimensions of the boundingBoxes do NOT determine
+         *      the gaps of the separation constraints, which are instead based on the
+         *      half-width and half-height passed when adding the shapes.
+         */
         void generateSeparationConstraints(const vpsc::Dim dim, 
                 vpsc::Variables& vars, vpsc::Constraints& gcs,
                 std::vector<vpsc::Rectangle*>& boundingBoxes);

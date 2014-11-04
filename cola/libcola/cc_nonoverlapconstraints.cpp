@@ -101,6 +101,11 @@ class OverlapShapeOffsets : public SubConstraintInfo
         {
             return (cluster && !cluster->clusterIsFromFixedRectangle());
         }
+        void resize(double xOffset, double yOffset)
+        {
+            halfDim[0] = xOffset;
+            halfDim[1] = yOffset;
+        }
         Cluster *cluster;
         double halfDim[2];   // Half width and height values.
         Box rectPadding;  // Used for cluster padding.
@@ -181,6 +186,52 @@ void NonOverlapConstraints::addShape(unsigned id, double halfW, double halfH,
     shapeOffsets[id] = OverlapShapeOffsets(id, halfW, halfH, group);
 }
 
+void NonOverlapConstraints::addShapeWithExemptions(unsigned id, double halfW, double halfH,
+        std::set<unsigned> exemptions, unsigned int group)
+{
+    // Setup pairInfos for all other shapes.
+    for (std::map<unsigned, OverlapShapeOffsets>::iterator curr =
+            shapeOffsets.begin(); curr != shapeOffsets.end(); ++curr)
+    {
+        unsigned otherId = curr->first;
+        if ((shapeOffsets[otherId].group == group) && (id != otherId) &&
+                exemptions.count(otherId)==0)
+        {
+            if (m_exemptions &&
+                    m_exemptions->shapePairIsExempt(ShapePair(otherId, id)))
+            {
+                continue;
+            }
+
+            // Apply non-overlap only to objects in the same group (cluster).
+            pairInfoList.push_back(ShapePairInfo(otherId, id));
+        }
+    }
+
+    shapeOffsets[id] = OverlapShapeOffsets(id, halfW, halfH, group);
+}
+
+void NonOverlapConstraints::resizeShape(unsigned id, double halfW, double halfH)
+{
+    OverlapShapeOffsets oso = shapeOffsets[id];
+    oso.resize(halfW, halfH);
+}
+
+void NonOverlapConstraints::removeShape(unsigned id)
+{
+    // Remove the OverlapShapeOffsets object for this id.
+    shapeOffsets.erase(id);
+    // Remove all ShapePairInfo objects having this id as one of their two indices.
+    std::list<ShapePairInfo>::iterator it = pairInfoList.begin();
+    while (it != pairInfoList.end()) {
+        ShapePairInfo spi = *it;
+        if (spi.varIndex1==id || spi.varIndex2==id) {
+            it = pairInfoList.erase(it); // now it points to next list element after one erased
+        } else {
+            it++;
+        }
+    }
+}
 
 // This is expected to be called after all addNode calls.
 void NonOverlapConstraints::addCluster(Cluster *cluster, unsigned int group)
