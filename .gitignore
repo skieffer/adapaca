@@ -1,0 +1,11 @@
+*.swp
+*.pyc
+
+cola/adaptagrams*
+!cola/adaptagrams.i
+
+cola/lib*/.libs
+cola/lib*/lib*.pc
+
+cola/test-driver
+

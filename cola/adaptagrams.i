@@ -31,6 +31,7 @@
 #include <libcola/convex_hull.h>
 #include <libcola/compound_constraints.h>
 #include <libcola/exceptions.h>
+#include <libcola/aca3.h>
 #include <libtopology/topology_graph.h>
 #include <libtopology/cola_topology_addon.h>
 #include <libavoid/libavoid.h>
@@ -156,6 +157,7 @@ class ColaException {
 %nodefaultdtor cola::RootCluster;
 %nodefaultdtor cola::ConvexCluster;
 %nodefaultdtor cola::RectangularCluster;
+%nodefaultdtor cola::ACALayout3;
 %nodefaultdtor Avoid::ShapeRef;
 %nodefaultdtor Avoid::ConnRef;
 %nodefaultdtor Avoid::ClusterRef;
@@ -225,6 +227,7 @@ void deleteDoubleArray(double* a) {
 %include "libcola/cluster.h"
 %include "libcola/convex_hull.h"
 %include "libcola/exceptions.h"
+%include "libcola/aca3.h"
 
 %include "libavoid/dllexport.h"
 %include "libavoid/geometry.h"
