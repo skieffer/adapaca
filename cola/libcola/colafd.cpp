@@ -1052,6 +1052,7 @@ double ConstrainedFDLayout::applyForcesAndConstraints(const vpsc::Dim dim, const
         valarray<double> oldCoords=coords;
         applyDescentVector(g,oldCoords,coords,oldStress,computeStepSize(H,g,g));
         setVariableDesiredPositions(vs,cs,des,coords);
+        setupExtraConstraints(flexibleConstraints, dim, vs, cs, boundingBoxes);
         project(vs,cs,coords);
         valarray<double> d(n);
         d=oldCoords-coords;

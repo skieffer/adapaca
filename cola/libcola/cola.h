@@ -668,7 +668,18 @@ public:
      */
     void setConstraints(const cola::CompoundConstraints& ccs)
     {
-        this->ccs = ccs;
+        unsigned n = ccs.size();
+        for (unsigned i = 0; i < n; i++) {
+            cola::CompoundConstraint *cc = ccs[i];
+            cola::DistributionConstraint *dc =
+                    dynamic_cast<cola::DistributionConstraint *> (cc);
+            if (dc && dc->isFlexible) {
+                this->flexibleConstraints.push_back(dc);
+            } else {
+                this->ccs.push_back(cc);
+            }
+        }
+        //this->ccs = ccs;
     }
     /** 
      *  @brief  Set an addon for doing topology preserving layout.
@@ -825,6 +836,7 @@ private:
     bool rungekutta;
     DesiredPositions *desiredPositions;
     cola::CompoundConstraints extraConstraints;
+    cola::CompoundConstraints flexibleConstraints;
     
     RootCluster *clusterHierarchy;
     double rectClusterBuffer;

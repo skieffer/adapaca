@@ -405,6 +405,8 @@ class AlignmentConstraint : public CompoundConstraint
         void printCreationCode(FILE *fp) const;
         void updateShapeOffsetsForDifferentCentres(
                 const std::vector<double>& offsets, bool forward = true);
+
+        double inferDesiredPos(vpsc::Variables& vars);
         
         /// Generic pointer to an indicator object being used to represent 
         /// this compound constraint in the GUI.
@@ -657,13 +659,19 @@ class DistributionConstraint : public CompoundConstraint {
                 vpsc::Rectangles& bbs);
         void printCreationCode(FILE *fp) const;
 
+        void adjustSep(vpsc::Variables& vars);
+
         vpsc::Constraints cs;
+        std::set<AlignmentConstraint*> acs;
         
         /// Generic pointer to an indicator object being used to represent 
         /// this compound constraint in the GUI.
         void *indicator;
         
         double sep;
+        bool isFlexible;
+        double minsep;
+        double maxsep;
 };
 
 /**

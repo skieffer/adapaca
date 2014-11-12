@@ -297,6 +297,17 @@ void AlignmentConstraint::generateSeparationConstraints(const vpsc::Dim dim,
     }
 }
 
+double AlignmentConstraint::inferDesiredPos(vpsc::Variables& vars)
+{
+    SubConstraintInfoList::iterator o = _subConstraintInfo.begin();
+    Offset *info = static_cast<Offset *> (*o);
+    assertValidVariableIndex(vars, info->varIndex);
+    vpsc::Variable *v = vars[info->varIndex];
+    double vdes = v->desiredPosition;
+    double offset = info->distOffset;
+    return vdes - offset;
+}
+
 void AlignmentConstraint::updateShapeOffsetsForDifferentCentres(
         const std::vector<double>& offsets, bool forward)
 {
@@ -887,7 +898,11 @@ void MultiSeparationConstraint::generateSeparationConstraints(
 
 DistributionConstraint::DistributionConstraint(const vpsc::Dim dim)
     : CompoundConstraint(dim),
-      indicator(NULL)
+      indicator(NULL),
+      sep(0),
+      isFlexible(false),
+      minsep(1),
+      maxsep(1000000)
 {
 }
 
@@ -896,6 +911,8 @@ void DistributionConstraint::addAlignmentPair(AlignmentConstraint *ac1,
         AlignmentConstraint *ac2)
 {
     _subConstraintInfo.push_back(new AlignmentPair(ac1, ac2));
+    acs.insert(ac1);
+    acs.insert(ac2);
 }
 
 
@@ -961,6 +978,34 @@ std::string DistributionConstraint::toString(void) const
     return stream.str();
 }
 
+void DistributionConstraint::adjustSep(vpsc::Variables& vars)
+{
+    std::vector<double> a;
+    int n = 0;
+    for (std::set<AlignmentConstraint*>::iterator it = acs.begin();
+             it != acs.end(); ++it)
+    {
+        AlignmentConstraint *ac = *it;
+        double p = ac->inferDesiredPos(vars);
+        a.push_back(p);
+        n++;
+    }
+    if (n < 2) return;
+    std::sort(a.begin(), a.end());
+    int m = (n - n%2) / 2;
+    double s = 0;
+    for (int i = 0; i < m; i++) {
+        s += (n-1-2*i) * (a[n-1-i] - a[i]);
+    }
+    s = 6*s/(n*n*n - n);
+    if (s > maxsep) {
+        sep = maxsep;
+    } else if (s < minsep) {
+        sep = minsep;
+    } else {
+        sep = s;
+    }
+}
 
 SubConstraintAlternatives 
 DistributionConstraint::getCurrSubConstraintAlternatives(vpsc::Variables vs[])
@@ -989,7 +1034,7 @@ void DistributionConstraint::generateSeparationConstraints(
         const vpsc::Dim dim, vpsc::Variables& vars, vpsc::Constraints& gcs,
         vpsc::Rectangles& bbs)
 {
-    COLA_UNUSED(vars);
+    //COLA_UNUSED(vars);
     COLA_UNUSED(bbs);
 
     if (dim == _primaryDim)
@@ -1004,6 +1049,9 @@ void DistributionConstraint::generateSeparationConstraints(
             if (!c1->variable || !c2->variable)
             {
                 throw InvalidConstraint(this);
+            }
+            if (isFlexible) {
+                adjustSep(vars);
             }
             vpsc::Constraint *c=new vpsc::Constraint(
                     c1->variable, c2->variable, sep, true);
