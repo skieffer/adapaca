@@ -35,7 +35,9 @@ libcola_la_SOURCES = cola.h\
 	shapepair.cpp \
 	shapepainr.h \
     aca3.cpp \
-    aca3.h
+    aca3.h \
+    stress_terms.cpp \
+    stress_terms.h
 
 libcolaincludedir = $(includedir)/libcola
 libcolainclude_HEADERS = cola.h\
@@ -52,7 +54,8 @@ libcolainclude_HEADERS = cola.h\
 	cc_nonoverlapconstraints.h \
 	box.h \
 	shapepair.h \
-    aca3.h
+    aca3.h \
+    stress_terms.h
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libcola.pc

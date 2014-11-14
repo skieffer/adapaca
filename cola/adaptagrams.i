@@ -32,6 +32,7 @@
 #include <libcola/compound_constraints.h>
 #include <libcola/exceptions.h>
 #include <libcola/aca3.h>
+#include <libcola/stress_terms.h>
 #include <libtopology/topology_graph.h>
 #include <libtopology/cola_topology_addon.h>
 #include <libavoid/libavoid.h>
@@ -182,6 +183,7 @@ class ColaException {
 %template(ColaEdges) std::vector< std::pair<unsigned,unsigned> >;
 %template(RectanglePtrs) std::vector<vpsc::Rectangle*>;
 %template(CompoundConstraintPtrs) std::vector<cola::CompoundConstraint*>;
+%template(StressTermPtrs) std::vector<cola::StressTerm*>;
 %template(ColaLocks) std::vector<cola::Lock>;
 %template(ColaResizes) std::vector<cola::Resize>;
 %template(ColaDesiredPositions) std::vector<cola::DesiredPosition>;
@@ -228,6 +230,7 @@ void deleteDoubleArray(double* a) {
 %include "libcola/convex_hull.h"
 %include "libcola/exceptions.h"
 %include "libcola/aca3.h"
+%include "libcola/stress_terms.h"
 
 %include "libavoid/dllexport.h"
 %include "libavoid/geometry.h"
