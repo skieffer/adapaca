@@ -1054,6 +1054,14 @@ double ConstrainedFDLayout::applyForcesAndConstraints(const vpsc::Dim dim, const
         setVariableDesiredPositions(vs,cs,des,coords);
         setupExtraConstraints(flexibleConstraints, dim, vs, cs, boundingBoxes);
         project(vs,cs,coords);
+        /*
+        if (flexibleConstraints.size() > 0) {
+            setVariableDesiredPositions(vs,cs,des,coords);
+            vpsc::Constraints fcs;
+            setupExtraConstraints(flexibleConstraints, dim, vs, fcs, boundingBoxes);
+            project(vs,fcs,coords);
+        }
+        */
         valarray<double> d(n);
         d=oldCoords-coords;
         double stepsize=computeStepSize(H,g,d);
