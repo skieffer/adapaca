@@ -1149,6 +1149,10 @@ void ConstrainedFDLayout::computeForces(
         }
         H(u,u)=Huu;
     }
+    for (StressTerms::iterator it=extraStressTerms.begin(); it!=extraStressTerms.end(); ++it) {
+        StressTerm *st = *it;
+        st->computeForces(n, X, Y, G, D, dim, H, g);
+    }
     if(desiredPositions) {
         for(DesiredPositions::const_iterator p=desiredPositions->begin();
             p!=desiredPositions->end();++p) {
@@ -1205,6 +1209,10 @@ double ConstrainedFDLayout::computeStress() const {
             stress+=s;
             FILE_LOG(logDEBUG2)<<"s("<<u<<","<<v<<")="<<s;
         }
+    }
+    for (StressTerms::const_iterator it=extraStressTerms.begin(); it!=extraStressTerms.end(); ++it) {
+        StressTerm *st = *it;
+        stress += st->computeStress(n, X, Y, G, D);
     }
     if(preIteration) {
         if ((*preIteration)()) {

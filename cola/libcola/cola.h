@@ -35,6 +35,7 @@
 #include "libcola/cluster.h"
 #include "libcola/straightener.h"
 #include "libcola/exceptions.h"
+#include "libcola/stress_terms.h"
 
 namespace vpsc { class Rectangle; }
 namespace topology { 
@@ -681,6 +682,16 @@ public:
         }
         //this->ccs = ccs;
     }
+    /**
+     * @brief Specify a set of additional stress terms for the goal function.
+     *
+     * @param[in] sts  The stress terms.
+     */
+    void setExtraStressTerms(const cola::StressTerms& sts)
+    {
+        this->extraStressTerms = sts;
+    }
+
     /** 
      *  @brief  Set an addon for doing topology preserving layout.
      *
@@ -828,6 +839,7 @@ private:
     bool using_default_done; // Whether we allocated a default TestConvergence object.
     PreIteration* preIteration;
     cola::CompoundConstraints ccs;
+    cola::StressTerms extraStressTerms;
     double** D;
     unsigned short** G;
 
