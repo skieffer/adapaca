@@ -67,7 +67,7 @@ class SoftDistributionStressTerm : public StressTerm
 {
 public:
     SoftDistributionStressTerm(double weight = 1);
-    void addSoftDistrubtion(SoftDistribution *sd);
+    void addSoftDistribution(SoftDistribution *sd);
     double computeStress(unsigned n, std::valarray<double> X, std::valarray<double> Y,
                    unsigned short** G, double** D);
     void computeForces(unsigned n, std::valarray<double> X, std::valarray<double> Y,

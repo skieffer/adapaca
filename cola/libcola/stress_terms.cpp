@@ -61,7 +61,7 @@ std::vector<double> SoftDistribution::seps(std::valarray<double> X, std::valarra
 SoftDistributionStressTerm::SoftDistributionStressTerm(double weight) :
     StressTerm(weight) {}
 
-void SoftDistributionStressTerm::addSoftDistrubtion(SoftDistribution *sd)
+void SoftDistributionStressTerm::addSoftDistribution(SoftDistribution *sd)
 {
     sds.push_back(sd);
 }
