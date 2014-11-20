@@ -143,6 +143,8 @@ struct OrderedAlignment {
     double penalty;
 };
 
+typedef std::vector<OrderedAlignment*> OrderedAlignments;
+
 struct NodeAlignment {
     NodeAlignment(int r, int n, ACASepFlag d, int edgeIndex = -1) :
         rootIndex(r), nbrIndex(n), direction(d), assocEdge(edgeIndex) {}
@@ -489,6 +491,8 @@ public:
 
     std::vector<OrderedAlignment*> orderedAlignments(void);
 
+    OrderedAlignment *initOrdAlign(int l, int r, ACASepFlag sf, int edgeIndex=-1);
+
     // Experimental:
     std::string configureDeg4Nodes(void);
     std::string configureDeg3Nodes(void);
@@ -574,6 +578,7 @@ private:
 
     OrderedAlignment *chooseOA(void);
     OrderedAlignment *chooseOA2(void);
+    bool allOrNothing(OrderedAlignments *oas);
     bool applyIfFeasible(OrderedAlignment *oa);
     bool satisfiable(vpsc::Solver solv);
     vpsc::IncSolver *satisfy(vpsc::Variables &vs, vpsc::Constraints &cs, bool &sat);
@@ -582,7 +587,6 @@ private:
     bool isFeasible(int l, int r, ACASepFlag sf);
     bool isFeasible(OrderedAlignment *oa);
     OrderedAlignment *initOrdAlign(int j, ACASepFlag sf);
-    OrderedAlignment *initOrdAlign(int l, int r, ACASepFlag sf, int edgeIndex=-1);
     void completeOrdAlign(OrderedAlignment *oa);
     bool badSeparation(int j, ACASepFlag sf);
     bool badSeparation(int l, int r, ACASepFlag sf);

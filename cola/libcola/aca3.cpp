@@ -1667,6 +1667,28 @@ OrderedAlignment *ACALayout3::mostRecentOA(void)
 }
 
 /// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+bool ACALayout3::allOrNothing(OrderedAlignments *oas)
+{
+    bool okay = true;
+    pushState();
+    pushRectCoords();
+    for (OrderedAlignments::const_iterator it=oas->begin(); it!=oas->end(); ++it) {
+        OrderedAlignment *oa = *it;
+        okay = applyIfFeasible(oa);
+        if (!okay) break;
+    }
+    if (!okay) {
+        popRectCoords();
+        popState();
+    } else {
+        dropRectCoords();
+        dropState();
+    }
+    return okay;
+}
+
+/// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 /// Feasibility Checking
 
 /**

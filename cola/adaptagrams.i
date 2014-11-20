@@ -184,6 +184,7 @@ class ColaException {
 %template(RectanglePtrs) std::vector<vpsc::Rectangle*>;
 %template(CompoundConstraintPtrs) std::vector<cola::CompoundConstraint*>;
 %template(StressTermPtrs) std::vector<cola::StressTerm*>;
+%template(OrderedAlignmentPtrs) std::vector<cola::OrderedAlignment*>;
 %template(ColaLocks) std::vector<cola::Lock>;
 %template(ColaResizes) std::vector<cola::Resize>;
 %template(ColaDesiredPositions) std::vector<cola::DesiredPosition>;
