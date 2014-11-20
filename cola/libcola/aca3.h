@@ -300,6 +300,12 @@ public:
      */
     bool createOneAlignment(void);
     /**
+     * @brief Creates all the requested alignments, or none if any is infeasible.
+     *
+     * @return true if all alignments are successfully applied, else false.
+     */
+    bool applyOAsAllOrNothing(OrderedAlignments oas);
+    /**
      * @brief Do an initial layout, and then create alignments.
      *
      * This is a convenience function which first does a constrained force-directed
@@ -578,7 +584,7 @@ private:
 
     OrderedAlignment *chooseOA(void);
     OrderedAlignment *chooseOA2(void);
-    bool allOrNothing(OrderedAlignments *oas);
+    bool allOrNothing(OrderedAlignments oas);
     bool applyIfFeasible(OrderedAlignment *oa);
     bool satisfiable(vpsc::Solver solv);
     vpsc::IncSolver *satisfy(vpsc::Variables &vs, vpsc::Constraints &cs, bool &sat);

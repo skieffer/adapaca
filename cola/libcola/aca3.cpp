@@ -22,6 +22,7 @@
 */
 
 #include <algorithm>
+#include <stdio.h>
 
 #include "libvpsc/solve_VPSC.h"
 #include "libvpsc/exceptions.h"
@@ -195,6 +196,12 @@ bool ACALayout3::createOneAlignment(void)
 {
     if (!m_nocsInitialised) initNOCs();
     return acaLoopOnce();
+}
+
+bool ACALayout3::applyOAsAllOrNothing(OrderedAlignments oas)
+{
+    if (!m_nocsInitialised) initNOCs();
+    return allOrNothing(oas);
 }
 
 void ACALayout3::layout(void)
@@ -1269,6 +1276,36 @@ void ACALayout3::acaLoopAllAtOnce(void)
     layoutWithCurrentConstraints();
 }
 
+bool ACALayout3::allOrNothing(OrderedAlignments oas)
+{
+    perror("Beginning allOrNothing");
+    bool okay = true;
+    pushState();
+    pushRectCoords();
+    perror("FLAG 1");
+    for (OrderedAlignments::const_iterator it=oas.begin(); it!=oas.end(); ++it) {
+        OrderedAlignment *oa = *it;
+        perror("FLAG 8");
+        okay = applyIfFeasible(oa);
+        perror("FLAG 9");
+        if (!okay) break;
+    }
+    if (!okay) {
+        popRectCoords();
+        perror("FLAG 2");
+        popState();
+        perror("FLAG 3");
+    } else {
+        dropRectCoords();
+        perror("FLAG 4");
+        dropState();
+        perror("FLAG 5");
+    }
+    layoutWithCurrentConstraints();
+    perror("FLAG 6");
+    return okay;
+}
+
 void ACALayout3::updateVarsAndCons(OrderedAlignment *oa)
 {
     oa->separation->generateVariables(vpsc::XDIM, m_xvs);
@@ -1664,28 +1701,6 @@ OrderedAlignment *ACALayout3::mostRecentOA(void)
         oa = m_ordAligns.back();
     }
     return oa;
-}
-
-/// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-bool ACALayout3::allOrNothing(OrderedAlignments *oas)
-{
-    bool okay = true;
-    pushState();
-    pushRectCoords();
-    for (OrderedAlignments::const_iterator it=oas->begin(); it!=oas->end(); ++it) {
-        OrderedAlignment *oa = *it;
-        okay = applyIfFeasible(oa);
-        if (!okay) break;
-    }
-    if (!okay) {
-        popRectCoords();
-        popState();
-    } else {
-        dropRectCoords();
-        dropState();
-    }
-    return okay;
 }
 
 /// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
