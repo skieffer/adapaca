@@ -103,7 +103,7 @@ bool propsedSepConflictsWithExistingPosition(ACASepFlag pro, ACASepFlag ex)
 
 bool propsedSepConflictsWithExistingSepCo(ACASepFlag pro, ACASepFlag ex)
 {
-    // Proposed separation pro conflicts with existing separation ex
+    // Proposed separation pro conflicts with existing separation constraint ex
     // if ex has any of the complementary bits of pro.
     int proComp = ACAALLSEP - pro;
     return (proComp & ex);
@@ -1278,31 +1278,26 @@ void ACALayout3::acaLoopAllAtOnce(void)
 
 bool ACALayout3::allOrNothing(OrderedAlignments oas)
 {
-    perror("Beginning allOrNothing");
     bool okay = true;
     pushState();
     pushRectCoords();
-    perror("FLAG 1");
     for (OrderedAlignments::const_iterator it=oas.begin(); it!=oas.end(); ++it) {
         OrderedAlignment *oa = *it;
-        perror("FLAG 8");
         okay = applyIfFeasible(oa);
-        perror("FLAG 9");
         if (!okay) break;
     }
     if (!okay) {
+        //perror("All or nothing: nothing.");
         popRectCoords();
-        perror("FLAG 2");
+        // Must trash any remaining edge shapes before popping the state.
+        trashNewEdgeShapesAccordingToStateStack();
         popState();
-        perror("FLAG 3");
     } else {
+        //perror("All or nothing: all.");
         dropRectCoords();
-        perror("FLAG 4");
         dropState();
-        perror("FLAG 5");
     }
     layoutWithCurrentConstraints();
-    perror("FLAG 6");
     return okay;
 }
 
@@ -1335,6 +1330,41 @@ void ACALayout3::pushState(void)
     m_sizeStack.push_back(nyc);
     m_sizeStack.push_back(nxr);
     m_sizeStack.push_back(nyr);
+}
+
+void ACALayout3::trashNewEdgeShapesAccordingToStateStack(void)
+{
+    // Check how many variables there were in both dimensions,
+    // in the previous state.
+    size_t N = m_sizeStack.size();
+    COLA_ASSERT(N>=6);
+    unsigned nyv=m_sizeStack[N-5];
+    unsigned nxv=m_sizeStack[N-6];
+    // And how many are there now?
+    unsigned Nyv = m_yvs.size();
+    unsigned Nxv = m_xvs.size();
+    // Revert the data structures that grow with addition
+    // of edge shapes.
+    // x-dimension
+    for (unsigned i = Nxv - 1; i >= nxv; i--) {
+        m_xGuidelineIndexToEdgeIndex.erase(i);
+        m_xnocs->removeShape(i);
+        m_xAuxRectIndexInExtendedRS.erase(i);
+    }
+    // y-dimension
+    for (unsigned j = Nyv - 1; j >= nyv; j--) {
+        m_yGuidelineIndexToEdgeIndex.erase(j);
+        m_ynocs->removeShape(j);
+        m_yAuxRectIndexInExtendedRS.erase(j);
+    }
+    // As for the m_extendedRS vector, there should be one new
+    // rectangle at the end of it for each of the edge shapes.
+    // We pop these off the vector now. (Could have done so in
+    // in the two loops above, but that would put cleverness over
+    // clarity.)
+    for (unsigned k = 0; k < (Nxv-nxv)+(Nyv-nyv); k++) {
+        m_extendedRS.pop_back();
+    }
 }
 
 // Restore lengths of variable and constraint vectors, by erasing tails.
@@ -1672,7 +1702,40 @@ OrderedAlignment *ACALayout3::initOrdAlign(int l, int r, ACASepFlag sf, int edge
 
 void ACALayout3::completeOrdAlign(OrderedAlignment *oa)
 {
-    int l = oa->left, r = oa->right;
+    // FIXME: The fields in OrderedAlignment class really should not be
+    // called "left" and "right", since we are actually thinking of them
+    // as a "source" and "target". Note that this last notion is itself
+    // independent of whether the edge is thought of as directed, and, if
+    // so, which are the source and target nodes w.r.t. that directedness;
+    // instead, this notion of "source" and "target" refers only to the
+    // ACASEPFLAG stored in the OrderedAlignment's sf field.
+    int pseudoSource = oa->left, pseudoTarget = oa->right;
+    // However, in order to create a SeparationConstraint, we do need to
+    // work out which one is actually to be on the "left" and which on the
+    // "right" -- this in the VPSC sense, which is literal when we work in
+    // the x-dimension, and where "left" means "above" and "right" means
+    // "below" when we work in the y-dimension.
+    int l = -1, r = -1;
+    if (oa->af == ACAHORIZ) {
+        if (oa->sf & ACAEAST) {
+            l = pseudoSource;
+            r = pseudoTarget;
+        } else {
+            l = pseudoTarget;
+            r = pseudoSource;
+        }
+    } else {
+        if (oa->sf & ACASOUTH) {
+            l = pseudoSource;
+            r = pseudoTarget;
+        } else {
+            l = pseudoTarget;
+            r = pseudoSource;
+        }
+    }
+    COLA_ASSERT(l >= 0);
+    COLA_ASSERT(r >= 0);
+    //int l = oa->left, r = oa->right;
     vpsc::Rectangle *rl = getRect(l), *rr = getRect(r);
     // Determine dimensions.
     vpsc::Dim sepDim   = oa->af == ACAHORIZ ? vpsc::XDIM : vpsc::YDIM;
@@ -1714,7 +1777,8 @@ OrderedAlignment *ACALayout3::mostRecentOA(void)
 bool ACALayout3::applyIfFeasible(OrderedAlignment *oa)
 {
     // First check whether it is simply a bad separation.
-    if (badSeparation(oa->edgeIndex,oa->sf)) return false;
+    int edgeIndex = oa->edgeIndex;
+    if (edgeIndex >= 0 && badSeparation(edgeIndex,oa->sf)) return false;
     // If not, then proceed to use VPSC to check feasibility.
     using namespace vpsc;
     // Save the state before we make any changes.
@@ -1733,6 +1797,9 @@ bool ACALayout3::applyIfFeasible(OrderedAlignment *oa)
     // NOC objects
     cola::NonOverlapConstraints *sepnocs = horiz ? m_xnocs : m_ynocs;
     cola::NonOverlapConstraints *alnnocs = horiz ? m_ynocs : m_xnocs;
+    // TODO: Instead of all the maps (gi2ei, auxRecToExtRS), maybe should use more
+    // object-oriented solution here. Namely, can't we have a class that contains
+    // a guideline, an edge, and a rectangle?
     // Get map from guideline indices to edge indices for alignment dimension.
     std::map<int,int> &gi2ei = horiz ? m_yGuidelineIndexToEdgeIndex :
                                        m_xGuidelineIndexToEdgeIndex;
@@ -1783,24 +1850,23 @@ bool ACALayout3::applyIfFeasible(OrderedAlignment *oa)
     seps = satisfy(sepv,sepc,feasible);
     // 2. The Alignment Constraint:
     if (feasible) alns = satisfy(alnv,alnc,feasible);
-
-    // 4. Non-overlap in the dimension of the alignment constraint:
+    // 3. Non-overlap in the dimension of the alignment constraint:
     if (feasible) {
         updateNodeRectsFromVars();
         recomputeEdgeShapes(alnd);
         alnnocs->generateSeparationConstraints(alnd,alnv,alnc,alnr);
         alnnocsolv = satisfy(alnv,alnc,feasible);
     }
-
-    // 3. Non-Overlap in the dimension of the separation constraint:
+    // 4. Non-Overlap in the dimension of the separation constraint:
     if (feasible) {
         updateNodeRectsFromVars();
         recomputeEdgeShapes(sepd);
         sepnocs->generateSeparationConstraints(sepd,sepv,sepc,sepr);
         sepnocsolv = satisfy(sepv,sepc,feasible);
     }
-
+    // Now conclude based on whether all tests were satisfiable or not.
     if (!feasible) {
+        // One of the tests failed.
         // Pop state twice to return to state before this function call.
         popState();
         popState();
@@ -1811,15 +1877,14 @@ bool ACALayout3::applyIfFeasible(OrderedAlignment *oa)
         alnnocs->removeShape(newRectIndex);
         auxRectToExtRS.erase(newRectIndex);
         m_extendedRS.pop_back();
-    } else { // OA is feasible. We will keep it.
+    } else {
+        // The passed OrderedAlignment is feasible. We will keep it.
+#ifndef FULLSOLVE
         // So far we have only tried to satisfy the constraints.
         // Now we should actually find an optimal solution.
-
-#ifndef FULLSOLVE
         alnnocsolv->solve();
         sepnocsolv->solve();
 #endif
-
         // Accept the new node positions.
         updateNodeRectsFromVars();
         // Pop state just once to get rid of the NOCs, but keep the new ordered alignment.
@@ -1828,6 +1893,8 @@ bool ACALayout3::applyIfFeasible(OrderedAlignment *oa)
         dropState();
         dropRectCoords();
     }
+    // Clean up, and return a boolean saying whether the passed OrderedAlignment
+    // was feasible (and hence applied) or not.
     delete seps;
     delete alns;
     delete sepnocsolv;
@@ -1838,6 +1905,7 @@ bool ACALayout3::applyIfFeasible(OrderedAlignment *oa)
 // Constructs a solver and attempts to satisfy the passed constraints on the
 // passed vars. Sets the bool passed by reference according to whether it was
 // possible to satisfy the constraints.
+// Returns the solver.
 vpsc::IncSolver *ACALayout3::satisfy(Variables &vs, Constraints &cs, bool &sat)
 {
     IncSolver *solv = new IncSolver(vs,cs);

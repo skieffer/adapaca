@@ -30,6 +30,8 @@
 
 namespace cola {
 
+void testACA();
+
 template<typename T>
 struct Matrix2d
 {
@@ -580,6 +582,7 @@ private:
     void pushRectCoords(void);
     void popRectCoords(void);
     void dropRectCoords(void);
+    void trashNewEdgeShapesAccordingToStateStack(void);
     std::set<unsigned> exemptionSetForEdge(int j);
 
     OrderedAlignment *chooseOA(void);
