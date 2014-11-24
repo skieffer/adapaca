@@ -498,7 +498,7 @@ public:
     void doFinalLayout(bool b);
 
     std::vector<OrderedAlignment*> orderedAlignments(void);
-
+    void addOrderedAlignments(OrderedAlignments oas);
     OrderedAlignment *initOrdAlign(int l, int r, ACASepFlag sf, int edgeIndex=-1);
 
     // Experimental:
@@ -565,7 +565,6 @@ private:
 
     std::string createFeasibleNodeAlignments(NodeAlignments nas, std::string debugName="");
 
-    void addOrderedAlignments(OrderedAlignments oas);
     void updateStateTables(OrderedAlignment *oa);
     void updateVarsAndCons(OrderedAlignment *oa);
 
