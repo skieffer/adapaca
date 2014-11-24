@@ -1108,6 +1108,16 @@ void ACALayout3::recordAlignmentWithClosure(int i, int j, ACAFlag af, int numCol
     }
 }
 
+void ACALayout3::addOrderedAlignments(OrderedAlignments oas)
+{
+    for (OrderedAlignments::const_iterator it=oas.begin(); it!=oas.end(); ++it) {
+        OrderedAlignment *oa = *it;
+        m_ccs.push_back(oa->separation);
+        m_ccs.push_back(oa->alignment);
+        updateStateTables(oa);
+    }
+}
+
 void ACALayout3::updateStateTables(OrderedAlignment *oa)
 {
     int l = oa->left, r = oa->right;

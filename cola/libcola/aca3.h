@@ -565,6 +565,7 @@ private:
 
     std::string createFeasibleNodeAlignments(NodeAlignments nas, std::string debugName="");
 
+    void addOrderedAlignments(OrderedAlignments oas);
     void updateStateTables(OrderedAlignment *oa);
     void updateVarsAndCons(OrderedAlignment *oa);
 
