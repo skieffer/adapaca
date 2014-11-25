@@ -148,12 +148,12 @@ ACALayout3::ACALayout3(
       m_aggressiveOrdering(false),
       m_overlapPrevention(ACAOPCENTREALIGN),
       m_fdlayout(NULL),
-      m_lengthUpperBound(10000),
+      m_lengthUpperBound(1000000),
       m_didLayoutForLastAlignment(false),
       m_doFinalFDLayout(false),
       m_nocExemptions(new NonOverlapConstraintExemptions()),
       m_nocsInitialised(false),
-      m_layoutPeriod(10000)
+      m_layoutPeriod(1000000)
 {
     // By default, no edges are ignored.
     for (int i=0; i<m_m; i++) m_ignoreEdge.push_back(false);
@@ -1112,6 +1112,7 @@ void ACALayout3::addOrderedAlignments(OrderedAlignments oas)
 {
     for (OrderedAlignments::const_iterator it=oas.begin(); it!=oas.end(); ++it) {
         OrderedAlignment *oa = *it;
+        m_ordAligns.push_back(oa);
         m_ccs.push_back(oa->separation);
         m_ccs.push_back(oa->alignment);
         updateStateTables(oa);
@@ -1306,8 +1307,10 @@ bool ACALayout3::allOrNothing(OrderedAlignments oas)
         //perror("All or nothing: all.");
         dropRectCoords();
         dropState();
+        addOrderedAlignments(oas);
+        layoutIfAppropriate();
     }
-    layoutWithCurrentConstraints();
+    //layoutWithCurrentConstraints();
     return okay;
 }
 
@@ -1787,8 +1790,15 @@ OrderedAlignment *ACALayout3::mostRecentOA(void)
 bool ACALayout3::applyIfFeasible(OrderedAlignment *oa)
 {
     // First check whether it is simply a bad separation.
-    int edgeIndex = oa->edgeIndex;
-    if (edgeIndex >= 0 && badSeparation(edgeIndex,oa->sf)) return false;
+    //int edgeIndex = oa->edgeIndex;
+    //if (edgeIndex >= 0 && badSeparation(edgeIndex,oa->sf)) return false;
+    // FIXME:
+    // We no longer check m_allowedSeps, since those are specified per edge,
+    // and we have found that the edge-based basSep check is no good, since
+    // it confuses the src and tgt of the edge with the pseudo src and tgt
+    // of the OA.
+    if (badSeparation(oa->left, oa->right, oa->sf)) return false;
+
     // If not, then proceed to use VPSC to check feasibility.
     using namespace vpsc;
     // Save the state before we make any changes.
@@ -2008,9 +2018,9 @@ bool ACALayout3::badSeparation(int l, int r, ACASepFlag sf)
 {
     // If we are /not/ doing aggressive ordering, then
     // first check if sf is ruled out for reversing existing order.
-    // Do aliasing
-    l = alias(l);
-    r = alias(r);
+    //// Do aliasing
+    //l = alias(l);
+    //r = alias(r);
     if (!m_aggressiveOrdering) {
         vpsc::Rectangle *rs = getRect(l), *rt = getRect(r);
         double dx = rt->getCentreX() - rs->getCentreX();

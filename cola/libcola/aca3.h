@@ -30,7 +30,9 @@
 
 namespace cola {
 
+#ifndef SWIG
 void testACA();
+#endif
 
 template<typename T>
 struct Matrix2d
