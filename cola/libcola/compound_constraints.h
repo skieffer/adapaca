@@ -134,6 +134,8 @@ class SubConstraintInfo
 
 typedef std::vector<SubConstraintInfo *> SubConstraintInfoList;
 
+class AlignmentConstraint;
+class SeparationConstraint;
 
 /** 
  * @brief An abstract base class for all high-level compound constraints.
@@ -236,6 +238,9 @@ public:
     std::list<unsigned> subConstraintObjIndexes(void) const;
     virtual void printCreationCode(FILE *fp) const;
     bool shouldCombineSubConstraints(void) const;
+
+    AlignmentConstraint *castAsAC(void);
+    SeparationConstraint *castAsSC(void);
 
 protected:
     void assertValidVariableIndex(const vpsc::Variables& vars, 
@@ -407,6 +412,8 @@ class AlignmentConstraint : public CompoundConstraint
                 const std::vector<double>& offsets, bool forward = true);
 
         double inferDesiredPos(vpsc::Variables& vars);
+        std::vector<unsigned> shapeIndices(void);
+        std::vector<double> shapeOffsets(void);
         
         /// Generic pointer to an indicator object being used to represent 
         /// this compound constraint in the GUI.

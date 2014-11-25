@@ -308,6 +308,30 @@ double AlignmentConstraint::inferDesiredPos(vpsc::Variables& vars)
     return vdes - offset;
 }
 
+std::vector<unsigned> AlignmentConstraint::shapeIndices()
+{
+    std::vector<unsigned> indices;
+    for (SubConstraintInfoList::const_iterator o = _subConstraintInfo.begin();
+            o != _subConstraintInfo.end(); ++o)
+    {
+        Offset *info = static_cast<Offset *> (*o);
+        indices.push_back(info->varIndex);
+    }
+    return indices;
+}
+
+std::vector<double> AlignmentConstraint::shapeOffsets()
+{
+    std::vector<double> offsets;
+    for (SubConstraintInfoList::const_iterator o = _subConstraintInfo.begin();
+            o != _subConstraintInfo.end(); ++o)
+    {
+        Offset *info = static_cast<Offset *> (*o);
+        offsets.push_back(info->distOffset);
+    }
+    return offsets;
+}
+
 void AlignmentConstraint::updateShapeOffsetsForDifferentCentres(
         const std::vector<double>& offsets, bool forward)
 {
@@ -1618,6 +1642,17 @@ bool CompoundConstraint::shouldCombineSubConstraints(void) const
     return _combineSubConstraints;
 }
 
+AlignmentConstraint *CompoundConstraint::castAsAC()
+{
+    AlignmentConstraint *ac = dynamic_cast<AlignmentConstraint *> (this);
+    return ac;
+}
+
+SeparationConstraint *CompoundConstraint::castAsSC()
+{
+    SeparationConstraint *sc = dynamic_cast<SeparationConstraint *> (this);
+    return sc;
+}
 
 UnsatisfiableConstraintInfo::UnsatisfiableConstraintInfo(
         const vpsc::Constraint *c) 
