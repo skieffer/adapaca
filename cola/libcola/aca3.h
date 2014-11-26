@@ -496,6 +496,8 @@ public:
     // in the number of currently aligned edges.
     bool edgeIsAlignedConstTime(int j);
 
+    bool nodesAreAligned(int i, int j);
+
     void layoutPeriod(unsigned p);
     void doFinalLayout(bool b);
 

@@ -306,6 +306,12 @@ bool ACALayout3::edgeIsAlignedConstTime(int j)
     return (astate & (ACAHORIZ|ACAVERT));
 }
 
+bool ACALayout3::nodesAreAligned(int i, int j)
+{
+    int astate = (*m_alignmentState)(i,j);
+    return (astate & (ACAHORIZ|ACAVERT));
+}
+
 void ACALayout3::layoutPeriod(unsigned p)
 {
     m_layoutPeriod = p;
@@ -1799,6 +1805,13 @@ bool ACALayout3::applyIfFeasible(OrderedAlignment *oa)
     // of the OA.
     if (badSeparation(oa->left, oa->right, oa->sf)) return false;
 
+    /*
+    // DEBUG --------
+    printf("\n============================================\n");
+    printf("OA from %d to %d\n", oa->left, oa->right);
+    // --------------
+    */
+
     // If not, then proceed to use VPSC to check feasibility.
     using namespace vpsc;
     // Save the state before we make any changes.
@@ -1814,6 +1827,16 @@ bool ACALayout3::applyIfFeasible(OrderedAlignment *oa)
     Variables   &alnv = horiz ? m_yvs : m_xvs;
     Constraints &alnc = horiz ? m_ycs : m_xcs;
     Rectangles  &alnr = horiz ? m_yrs : m_xrs;
+
+    /*
+    // DEBUG --------------------
+    for (Constraints::const_iterator it=alnc.begin(); it!=alnc.end(); ++it) {
+        Constraint *c = *it;
+        printf("ac: %d, %d\n", c->left->id, c->right->id);
+    }
+    // --------------------------
+    */
+
     // NOC objects
     cola::NonOverlapConstraints *sepnocs = horiz ? m_xnocs : m_ynocs;
     cola::NonOverlapConstraints *alnnocs = horiz ? m_ynocs : m_xnocs;
@@ -1832,7 +1855,27 @@ bool ACALayout3::applyIfFeasible(OrderedAlignment *oa)
     // Extend vectors.
     oa->separation->generateSeparationConstraints(sepd,sepv,sepc,sepr);
     oa->alignment->generateVariables(alnd,alnv);
+
+    /*
+    // DEBUG ----
+    int NAC = alnc.size();
+    // ----------
+    */
+
     oa->alignment->generateSeparationConstraints(alnd,alnv,alnc,alnr);
+
+    /*
+    // DEBUG -----
+    NAC = alnc.size() - NAC;
+    for (Constraints::const_iterator it=alnc.begin(); it!=alnc.end(); ++it) {
+        Constraint *c = *it;
+        printf("ac: %d, %d, %.2f, %d\n", c->left->id, c->right->id,
+               c->gap, c->equality);
+    }
+    printf("%d new ones\n", NAC);
+    // -----------
+    */
+
     // New rectangle for aligned edge:
     Rectangle *newRect = makeRectForOA(oa);
     alnr.push_back(newRect);
@@ -1942,6 +1985,14 @@ vpsc::IncSolver *ACALayout3::satisfy(Variables &vs, Constraints &cs, bool &sat)
     for (Constraints::iterator it=cs.begin(); it!=cs.end(); it++) {
         Constraint *c = *it;
         if (c->unsatisfiable) {
+
+            /*
+            // DEBUG -----
+            printf("unsat ac: %d, %d, %.2f, %d\n", c->left->id, c->right->id,
+                   c->gap, c->equality);
+            // -----------
+            */
+
             sat = false;
             break;
         }
