@@ -1696,8 +1696,10 @@ OrderedAlignment *ACALayout3::initOrdAlign(int j, ACASepFlag sf)
     oa->af = sepToAlignFlag(sf);
     oa->sf = sf;
     oa->dim = oa->af == ACAHORIZ ? HORIZONTAL : VERTICAL;
-    oa->left  = sf==ACANORTH || sf==ACAWEST ? tgt : src;
-    oa->right = oa->left == tgt ? src : tgt;
+    //oa->left  = sf==ACANORTH || sf==ACAWEST ? tgt : src;
+    //oa->right = oa->left == tgt ? src : tgt;
+    oa->left = src;
+    oa->right = tgt;
     /*
     EdgeOffset offset = getEdgeOffsetForCompassDirection(j,sf);
     oa->offsetLeft  = oa->left == src ? offset.first : offset.second;
@@ -1795,6 +1797,15 @@ OrderedAlignment *ACALayout3::mostRecentOA(void)
 #define FULLSOLVE
 bool ACALayout3::applyIfFeasible(OrderedAlignment *oa)
 {
+    /*
+    // DEBUG ---------
+    int src = oa->left, tgt = oa->right;
+    if ((src == 40 && tgt == 38) || (src == 38 && tgt == 40)) {
+        perror("foo");
+    }
+    // ---------------
+    */
+
     // First check whether it is simply a bad separation.
     //int edgeIndex = oa->edgeIndex;
     //if (edgeIndex >= 0 && badSeparation(edgeIndex,oa->sf)) return false;
