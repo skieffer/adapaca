@@ -88,7 +88,8 @@ ConstrainedFDLayout::ConstrainedFDLayout(const vpsc::Rectangles& rs,
         const std::vector< Edge >& es, const double idealLength,
         const bool preventOverlaps, const EdgeLengths& eLengths, 
         TestConvergence *doneTest, PreIteration* preIteration)
-    : n(rs.size()),
+    : m_doYAxisFirst(false),
+      n(rs.size()),
       X(valarray<double>(n)),
       Y(valarray<double>(n)),
       done(doneTest),
@@ -207,8 +208,13 @@ void getPosition(Position& X, Position& Y, Position& pos) {
 void ConstrainedFDLayout::setPosition(Position& pos) {
     COLA_ASSERT(Y.size()==X.size());
     COLA_ASSERT(pos.size()==2*X.size());
-    moveTo(vpsc::HORIZONTAL,pos);
-    moveTo(vpsc::VERTICAL,pos);
+    if (m_doYAxisFirst) {
+        moveTo(vpsc::VERTICAL,pos);
+        moveTo(vpsc::HORIZONTAL,pos);
+    } else {
+        moveTo(vpsc::HORIZONTAL,pos);
+        moveTo(vpsc::VERTICAL,pos);
+    }
 }
 /*
  * Layout is performed by minimizing the P-stress goal function iteratively.
@@ -219,11 +225,16 @@ void ConstrainedFDLayout::computeDescentVectorOnBothAxes(
         const bool xAxis, const bool yAxis,
         double stress, Position& x0, Position& x1) {
     setPosition(x0);
-    if(xAxis) {
-        applyForcesAndConstraints(vpsc::HORIZONTAL,stress);
-    }
-    if(yAxis) {
+    if (xAxis && yAxis && m_doYAxisFirst) {
         applyForcesAndConstraints(vpsc::VERTICAL,stress);
+        applyForcesAndConstraints(vpsc::HORIZONTAL,stress);
+    } else {
+        if(xAxis) {
+            applyForcesAndConstraints(vpsc::HORIZONTAL,stress);
+        }
+        if(yAxis) {
+            applyForcesAndConstraints(vpsc::VERTICAL,stress);
+        }
     }
     getPosition(X,Y,x1);
 }
@@ -1054,14 +1065,6 @@ double ConstrainedFDLayout::applyForcesAndConstraints(const vpsc::Dim dim, const
         setVariableDesiredPositions(vs,cs,des,coords);
         setupExtraConstraints(flexibleConstraints, dim, vs, cs, boundingBoxes);
         project(vs,cs,coords);
-        /*
-        if (flexibleConstraints.size() > 0) {
-            setVariableDesiredPositions(vs,cs,des,coords);
-            vpsc::Constraints fcs;
-            setupExtraConstraints(flexibleConstraints, dim, vs, fcs, boundingBoxes);
-            project(vs,fcs,coords);
-        }
-        */
         valarray<double> d(n);
         d=oldCoords-coords;
         double stepsize=computeStepSize(H,g,d);

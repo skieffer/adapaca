@@ -800,6 +800,7 @@ public:
     void outputInstanceToSVG(std::string filename = std::string());
 
     double computeStress() const;
+    bool m_doYAxisFirst;
 
 private:
     unsigned n; // number of nodes
