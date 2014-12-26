@@ -1979,7 +1979,7 @@ bool ACALayout3::applyIfFeasible(OrderedAlignment *oa)
 /* Constructs a solver and attempts to solve the passed constraints on the passed vars.
  * Returns a bool saying whether the constraints were satisfiable.
  */
-bool ACALayout3::solve(Variables &vs, Constraints &cs)
+bool solve(Variables &vs, Constraints &cs)
 {
     bool sat = false;
     IncSolver solv(vs,cs);
