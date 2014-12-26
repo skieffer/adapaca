@@ -1976,8 +1976,34 @@ bool ACALayout3::applyIfFeasible(OrderedAlignment *oa)
     return feasible;
 }
 
+/* Constructs a solver and attempts to solve the passed constraints on the passed vars.
+ * Returns a bool saying whether the constraints were satisfiable.
+ */
+bool ACALayout3::solve(Variables &vs, Constraints &cs)
+{
+    bool sat = false;
+    IncSolver solv(vs,cs);
+    try {
+        solv.solve();
+        sat = true;
+    } catch (UnsatisfiedConstraint uc) {
+        sat = false;
+    }
+    if (sat) {
+        for (Constraints::iterator it=cs.begin(); it!=cs.end(); it++) {
+            Constraint *c = *it;
+            if (c->unsatisfiable) {
+                sat = false;
+                break;
+            }
+        }
+    }
+    return sat;
+}
+
 // Constructs a solver and attempts to satisfy the passed constraints on the
-// passed vars. Sets the bool passed by reference according to whether it was
+// passed vars. (Actually, does a full solve if FULLSOLVE is defined.)
+// Sets the bool passed by reference according to whether it was
 // possible to satisfy the constraints.
 // Returns the solver.
 vpsc::IncSolver *ACALayout3::satisfy(Variables &vs, Constraints &cs, bool &sat)

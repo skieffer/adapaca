@@ -505,6 +505,10 @@ public:
     void addOrderedAlignments(OrderedAlignments oas);
     OrderedAlignment *initOrdAlign(int l, int r, ACASepFlag sf, int edgeIndex=-1);
 
+    // FIXME: Should be placed in a more natural location (maybe another class, or just
+    // a top-level function) if we refactor the library.
+    bool solve(vpsc::Variables &vs, vpsc::Constraints &cs);
+
     // Experimental:
     std::string configureDeg4Nodes(void);
     std::string configureDeg3Nodes(void);
