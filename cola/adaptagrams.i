@@ -24,12 +24,16 @@
 #endif
 
 #include <vector>
+#include <libvpsc/variable.h>
+#include <libvpsc/constraint.h>
 #include <libvpsc/rectangle.h>
 #include <libvpsc/assertions.h>
 #include <libcola/cola.h>
 #include <libcola/cluster.h>
 #include <libcola/convex_hull.h>
 #include <libcola/compound_constraints.h>
+#include <libcola/shapepair.h>
+#include <libcola/cc_nonoverlapconstraints.h>
 #include <libcola/exceptions.h>
 #include <libcola/aca3.h>
 #include <libcola/stress_terms.h>
@@ -69,7 +73,6 @@ using namespace topology;
 %ignore cola::SubConstraintAlternatives;
 %ignore cola::SubConstraintInfo;
 %ignore std::vector<cola::SubConstraintInfo>;
-%ignore cola::NonOverlapConstraints;
 %ignore cola::Resize::Resize();
 %ignore vpsc::Constraint::Constraint();
 %ignore topology::Segment;
@@ -154,6 +157,7 @@ class ColaException {
 %nodefaultdtor cola::SeparationConstraint;
 %nodefaultdtor cola::OrthogonalEdgeConstraint;
 %nodefaultdtor cola::FixedRelativeConstraint;
+%nodefaultdtor cola::NonOverlapConstraints;
 %nodefaultdtor cola::Cluster;
 %nodefaultdtor cola::RootCluster;
 %nodefaultdtor cola::ConvexCluster;
@@ -181,6 +185,8 @@ class ColaException {
 %template(UnsatisfiableConstraintInfoPtrs) std::vector<cola::UnsatisfiableConstraintInfo *>;
 %template(ColaEdge) std::pair<unsigned,unsigned>;
 %template(ColaEdges) std::vector< std::pair<unsigned,unsigned> >;
+%template(VariablePtrs) std::vector<vpsc::Variable*>;
+%template(ConstraintPtrs) std::vector<vpsc::Constraint*>;
 %template(RectanglePtrs) std::vector<vpsc::Rectangle*>;
 %template(CompoundConstraintPtrs) std::vector<cola::CompoundConstraint*>;
 %template(StressTermPtrs) std::vector<cola::StressTerm*>;
@@ -224,8 +230,12 @@ void deleteDoubleArray(double* a) {
 /* Parse the header file to generate wrappers */
 %include "libvpsc/rectangle.h"
 %include "libvpsc/assertions.h"
-%include "libcola/compound_constraints.h"
+%include "libvpsc/variable.h"
+%include "libvpsc/constraint.h"
 
+%include "libcola/compound_constraints.h"
+%include "libcola/shapepair.h"
+%include "libcola/cc_nonoverlapconstraints.h"
 %include "libcola/cola.h"
 %include "libcola/cluster.h"
 %include "libcola/convex_hull.h"
