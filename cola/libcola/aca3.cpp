@@ -1976,6 +1976,50 @@ bool ACALayout3::applyIfFeasible(OrderedAlignment *oa)
     return feasible;
 }
 
+bool projectOntoCCs(Dim dim, Rectangles &rs, CompoundConstraints ccs, bool preventOverlaps)
+{
+    size_t n = rs.size();
+    // Set up nonoverlap constraints if desired.
+    NonOverlapConstraintExemptions *nocexemps = NULL;
+    NonOverlapConstraints *noc = NULL;
+    if (preventOverlaps) {
+        nocexemps = new NonOverlapConstraintExemptions();
+        noc = new NonOverlapConstraints(nocexemps);
+        for (unsigned i = 0; i < n; i++) {
+            noc->addShape(i, rs[i]->width()/2.0, rs[i]->height()/2.0);
+        }
+        ccs.push_back(noc);
+    }
+    // Set up vars and constraints.
+    Variables vs;
+    Constraints cs;
+    vs.resize(n);
+    for (unsigned i = 0; i < n; i++) {
+        vs[i] = new Variable(i, rs[i]->getCentreD(dim));
+    }
+    for (CompoundConstraints::iterator it=ccs.begin(); it!=ccs.end(); ++it) {
+        CompoundConstraint *cc = *it;
+        cc->generateVariables(dim, vs);
+        cc->generateSeparationConstraints(dim, vs, cs, rs);
+    }
+    // Solve, if possible.
+    bool sat = solve(vs, cs);
+    // If solved, accept new positions.
+    if (sat) {
+        for (unsigned i = 0; i < n; i++) {
+            rs[i]->moveCentreD(dim, vs[i]->finalPosition);
+        }
+    }
+    // Clean up
+    for (Variables::iterator it=vs.begin(); it!=vs.end(); ++it) delete *it;
+    for (Constraints::iterator it=cs.begin(); it!=cs.end(); ++it) delete *it;
+    // Cannot delete noc. Causes bizzare build error.
+    //delete noc;
+    delete nocexemps;
+    // Return
+    return sat;
+}
+
 /* Constructs a solver and attempts to solve the passed constraints on the passed vars.
  * Returns a bool saying whether the constraints were satisfiable.
  */

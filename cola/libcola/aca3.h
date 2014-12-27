@@ -221,6 +221,7 @@ bool sortRootedEdges(const RootedEdge &lhs, const RootedEdge &rhs);
 bool sortOrdAlignsByPenalty(const OrderedAlignment *lhs, const OrderedAlignment *rhs);
 
 // FIXME: Should be placed in a more natural location if we refactor the library.
+bool projectOntoCCs(vpsc::Dim dim, vpsc::Rectangles &rs, cola::CompoundConstraints ccs, bool preventOverlaps);
 bool solve(vpsc::Variables &vs, vpsc::Constraints &cs);
 
 // -----------------------------------------------------------------------------------
