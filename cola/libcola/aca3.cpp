@@ -1976,7 +1976,7 @@ bool ACALayout3::applyIfFeasible(OrderedAlignment *oa)
     return feasible;
 }
 
-bool projectOntoCCs(Dim dim, Rectangles &rs, CompoundConstraints ccs, bool preventOverlaps)
+int projectOntoCCs(Dim dim, Rectangles &rs, CompoundConstraints ccs, bool preventOverlaps)
 {
     size_t n = rs.size();
     // Set up nonoverlap constraints if desired.
@@ -2003,9 +2003,9 @@ bool projectOntoCCs(Dim dim, Rectangles &rs, CompoundConstraints ccs, bool preve
         cc->generateSeparationConstraints(dim, vs, cs, rs);
     }
     // Solve, if possible.
-    bool sat = solve(vs, cs);
-    // If solved, accept new positions.
-    if (sat) {
+    int result = solve(vs, cs, rs);
+    // If good enough, accept positions.
+    if (result < 2) {
         for (unsigned i = 0; i < n; i++) {
             rs[i]->moveCentreD(dim, vs[i]->finalPosition);
         }
@@ -2017,32 +2017,63 @@ bool projectOntoCCs(Dim dim, Rectangles &rs, CompoundConstraints ccs, bool preve
     //delete noc;
     delete nocexemps;
     // Return
-    return sat;
+    return result;
 }
 
 /* Constructs a solver and attempts to solve the passed constraints on the passed vars.
- * Returns a bool saying whether the constraints were satisfiable.
+ * Returns an int describing the result:
+ *   0: all constraints were satisfiable.
+ *   1: some constraints were unsatisfiable, but they were all nonoverlap constraints.
+ *   2: some constraints were unsatisfiable which were /not/ nonoverlap constraints.
  */
-bool solve(Variables &vs, Constraints &cs)
+int solve(Variables &vs, Constraints &cs, Rectangles &rs)
 {
-    bool sat = false;
+    int result = 0;
     IncSolver solv(vs,cs);
     try {
         solv.solve();
-        sat = true;
     } catch (UnsatisfiedConstraint uc) {
-        sat = false;
     }
-    if (sat) {
-        for (Constraints::iterator it=cs.begin(); it!=cs.end(); it++) {
-            Constraint *c = *it;
-            if (c->unsatisfiable) {
-                sat = false;
+    for (Constraints::iterator it=cs.begin(); it!=cs.end(); it++) {
+        Constraint *c = *it;
+        if (c->unsatisfiable) {
+            CompoundConstraint *cc = (CompoundConstraint*)(c->creator);
+            if (cc->toString() == "NonOverlapConstraints()") {
+                result = 1;
+            } else {
+                result = 2;
                 break;
             }
         }
     }
-    return sat;
+    bool DEBUG = false;
+    if (DEBUG) {
+        std::string unsatinfo;
+        char buf [1000];
+        for (Constraints::iterator it=cs.begin(); it!=cs.end(); it++) {
+            Constraint *c = *it;
+            if (c->unsatisfiable) {
+                sprintf(buf, "v_%d + %f <= v_%d\n", c->left->id, c->gap, c->right->id);
+                unsatinfo += buf;
+                if (c->left->id < rs.size()) {
+                    Rectangle *r = rs[c->left->id];
+                    sprintf(buf, "    v_%d rect: [%f, %f] x [%f, %f]\n", c->left->id,
+                            r->getMinX(), r->getMaxX(), r->getMinY(), r->getMaxY());
+                    unsatinfo += buf;
+                }
+                if (c->right->id < rs.size()) {
+                    Rectangle *r = rs[c->right->id];
+                    sprintf(buf, "    v_%d rect: [%f, %f] x [%f, %f]\n", c->right->id,
+                            r->getMinX(), r->getMaxX(), r->getMinY(), r->getMaxY());
+                    unsatinfo += buf;
+                }
+                CompoundConstraint *cc = (CompoundConstraint*)(c->creator);
+                unsatinfo += "    Creator: " + cc->toString() + "\n";
+            }
+        }
+        cout << unsatinfo;
+    }
+    return result;
 }
 
 // Constructs a solver and attempts to satisfy the passed constraints on the
