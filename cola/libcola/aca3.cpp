@@ -23,6 +23,7 @@
 
 #include <algorithm>
 #include <stdio.h>
+#include <set>
 
 #include "libvpsc/solve_VPSC.h"
 #include "libvpsc/exceptions.h"
@@ -1976,7 +1977,8 @@ bool ACALayout3::applyIfFeasible(OrderedAlignment *oa)
     return feasible;
 }
 
-int projectOntoCCs(Dim dim, Rectangles &rs, CompoundConstraints ccs, bool preventOverlaps)
+ProjectionResult projectOntoCCs(Dim dim, Rectangles &rs, CompoundConstraints ccs,
+                                bool preventOverlaps, int accept)
 {
     size_t n = rs.size();
     // Set up nonoverlap constraints if desired.
@@ -2003,9 +2005,9 @@ int projectOntoCCs(Dim dim, Rectangles &rs, CompoundConstraints ccs, bool preven
         cc->generateSeparationConstraints(dim, vs, cs, rs);
     }
     // Solve, if possible.
-    int result = solve(vs, cs, rs);
+    ProjectionResult result = solve(vs, cs, rs);
     // If good enough, accept positions.
-    if (result < 2) {
+    if (result.errorLevel <= accept) {
         for (unsigned i = 0; i < n; i++) {
             rs[i]->moveCentreD(dim, vs[i]->finalPosition);
         }
@@ -2026,7 +2028,7 @@ int projectOntoCCs(Dim dim, Rectangles &rs, CompoundConstraints ccs, bool preven
  *   1: some constraints were unsatisfiable, but they were all nonoverlap constraints.
  *   2: some constraints were unsatisfiable which were /not/ nonoverlap constraints.
  */
-int solve(Variables &vs, Constraints &cs, Rectangles &rs)
+ProjectionResult solve(Variables &vs, Constraints &cs, Rectangles &rs)
 {
     int result = 0;
     IncSolver solv(vs,cs);
@@ -2046,14 +2048,22 @@ int solve(Variables &vs, Constraints &cs, Rectangles &rs)
             }
         }
     }
-    bool DEBUG = false;
+    std::string unsatinfo;
+    bool DEBUG = true;
     if (DEBUG) {
-        std::string unsatinfo;
+        std::set<Variable*> varsInvolved;
+        unsatinfo += "===================================================\n";
+        unsatinfo += "UNSATISFIED CONSTRAINTS:\n";
         char buf [1000];
         for (Constraints::iterator it=cs.begin(); it!=cs.end(); it++) {
             Constraint *c = *it;
             if (c->unsatisfiable) {
-                sprintf(buf, "v_%d + %f <= v_%d\n", c->left->id, c->gap, c->right->id);
+                varsInvolved.insert(c->left);
+                varsInvolved.insert(c->right);
+                sprintf(buf, "v_%d + %f", c->left->id, c->gap);
+                unsatinfo += buf;
+                unsatinfo += c->equality ? " == " : " <= ";
+                sprintf(buf, "v_%d\n", c->right->id);
                 unsatinfo += buf;
                 if (c->left->id < rs.size()) {
                     Rectangle *r = rs[c->left->id];
@@ -2071,9 +2081,41 @@ int solve(Variables &vs, Constraints &cs, Rectangles &rs)
                 unsatinfo += "    Creator: " + cc->toString() + "\n";
             }
         }
-        cout << unsatinfo;
+        unsatinfo += "--------------------------------------------------\n";
+        unsatinfo += "RELATED CONSTRAINTS:\n";
+        std::set<Variable*>::iterator lit, rit, eit = varsInvolved.end();
+        for (Constraints::iterator it=cs.begin(); it!=cs.end(); it++) {
+            Constraint *c = *it;
+            lit = varsInvolved.find(c->left);
+            rit = varsInvolved.find(c->right);
+            if (lit != eit || rit != eit) {
+                sprintf(buf, "v_%d + %f", c->left->id, c->gap);
+                unsatinfo += buf;
+                unsatinfo += c->equality ? " == " : " <= ";
+                sprintf(buf, "v_%d\n", c->right->id);
+                unsatinfo += buf;
+                if (c->left->id < rs.size()) {
+                    Rectangle *r = rs[c->left->id];
+                    sprintf(buf, "    v_%d rect: [%f, %f] x [%f, %f]\n", c->left->id,
+                            r->getMinX(), r->getMaxX(), r->getMinY(), r->getMaxY());
+                    unsatinfo += buf;
+                }
+                if (c->right->id < rs.size()) {
+                    Rectangle *r = rs[c->right->id];
+                    sprintf(buf, "    v_%d rect: [%f, %f] x [%f, %f]\n", c->right->id,
+                            r->getMinX(), r->getMaxX(), r->getMinY(), r->getMaxY());
+                    unsatinfo += buf;
+                }
+                CompoundConstraint *cc = (CompoundConstraint*)(c->creator);
+                unsatinfo += "    Creator: " + cc->toString() + "\n";
+            }
+        }
+        //cout << unsatinfo;
     }
-    return result;
+    ProjectionResult pr;
+    pr.errorLevel = result;
+    pr.unsatinfo = unsatinfo;
+    return pr;
 }
 
 // Constructs a solver and attempts to satisfy the passed constraints on the

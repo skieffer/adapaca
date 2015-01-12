@@ -165,6 +165,11 @@ struct EdgeNode {
     int astate;
 };
 
+struct ProjectionResult {
+    int errorLevel;
+    std::string unsatinfo;
+};
+
 typedef std::vector<NodeAlignment> NodeAlignments;
 
 typedef std::pair<double,double> EdgeOffset;
@@ -221,8 +226,9 @@ bool sortRootedEdges(const RootedEdge &lhs, const RootedEdge &rhs);
 bool sortOrdAlignsByPenalty(const OrderedAlignment *lhs, const OrderedAlignment *rhs);
 
 // FIXME: Should be placed in a more natural location if we refactor the library.
-int projectOntoCCs(vpsc::Dim dim, vpsc::Rectangles &rs, cola::CompoundConstraints ccs, bool preventOverlaps);
-int solve(vpsc::Variables &vs, vpsc::Constraints &cs, vpsc::Rectangles &rs);
+ProjectionResult projectOntoCCs(vpsc::Dim dim, vpsc::Rectangles &rs, cola::CompoundConstraints ccs,
+                                bool preventOverlaps, int accept=0);
+ProjectionResult solve(vpsc::Variables &vs, vpsc::Constraints &cs, vpsc::Rectangles &rs);
 
 // -----------------------------------------------------------------------------------
 
