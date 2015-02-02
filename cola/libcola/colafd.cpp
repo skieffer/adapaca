@@ -89,6 +89,7 @@ ConstrainedFDLayout::ConstrainedFDLayout(const vpsc::Rectangles& rs,
         const bool preventOverlaps, const EdgeLengths& eLengths, 
         TestConvergence *doneTest, PreIteration* preIteration)
     : m_doYAxisFirst(false),
+      m_useNeighbourStress(false),
       n(rs.size()),
       X(valarray<double>(n)),
       Y(valarray<double>(n)),
@@ -111,6 +112,8 @@ ConstrainedFDLayout::ConstrainedFDLayout(const vpsc::Rectangles& rs,
         using_default_done = true;
     }
 
+    computeNeighbours(es);
+
     //FILELog::ReportingLevel() = logDEBUG1;
     FILELog::ReportingLevel() = logERROR;
     boundingBoxes = rs;
@@ -129,6 +132,20 @@ ConstrainedFDLayout::ConstrainedFDLayout(const vpsc::Rectangles& rs,
     }
 
     computePathLengths(es,m_edge_lengths);
+}
+
+void ConstrainedFDLayout::computeNeighbours(vector<Edge> es) {
+    for (int i = 0; i < n; i++) {
+        std::vector<unsigned> *v = new std::vector<unsigned>;
+        for (int j = 0; j < n; j++) v->push_back(0);
+        neighbours.push_back(*v);
+    }
+    for (vector<Edge>::iterator it = es.begin(); it!=es.end(); ++it) {
+        Edge e = *it;
+        unsigned s = e.first, t = e.second;
+        neighbours[s][t] = 1;
+        neighbours[t][s] = 1;
+    }
 }
 
 void dijkstra(const unsigned s, const unsigned n, double* d, 
@@ -1141,6 +1158,7 @@ void ConstrainedFDLayout::computeForces(
         double Huu=0;
         for(unsigned v=0;v<n;v++) {
             if(u==v) continue;
+            if (m_useNeighbourStress && neighbours[u][v]!=1) continue;
             unsigned short p = G[u][v];
             // no forces between disconnected parts of the graph
             if(p==0) continue;
@@ -1207,6 +1225,7 @@ double ConstrainedFDLayout::computeStress() const {
     double stress=0;
     for(unsigned u=0;(u + 1)<n;u++) {
         for(unsigned v=u+1;v<n;v++) {
+            if (m_useNeighbourStress && neighbours[u][v]!=1) continue;
             unsigned short p=G[u][v];
             // no forces between disconnected parts of the graph
             if(p==0) continue;

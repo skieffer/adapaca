@@ -801,6 +801,7 @@ public:
 
     double computeStress() const;
     bool m_doYAxisFirst;
+    bool m_useNeighbourStress;
 
 private:
     unsigned n; // number of nodes
@@ -833,6 +834,8 @@ private:
             vpsc::Variables (&vars)[2], unsigned int& priority, 
             cola::NonOverlapConstraints *noc, Cluster *cluster, 
             cola::CompoundConstraints& idleConstraints);
+
+    void computeNeighbours(std::vector< Edge > es);
 
     std::vector<std::vector<unsigned> > neighbours;
     std::vector<std::vector<double> > neighbourLengths;
