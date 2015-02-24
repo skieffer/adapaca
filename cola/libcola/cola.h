@@ -802,6 +802,7 @@ public:
     double computeStress() const;
     bool m_doYAxisFirst;
     bool m_useNeighbourStress;
+    std::vector<double> getDistancesFromRect(unsigned u);
 
 private:
     unsigned n; // number of nodes
