@@ -134,6 +134,30 @@ ConstrainedFDLayout::ConstrainedFDLayout(const vpsc::Rectangles& rs,
     computePathLengths(es,m_edge_lengths);
 }
 
+std::vector<double> ConstrainedFDLayout::readLinearD(void)
+{
+    std::vector<double> d;
+    d.resize(n*n);
+    for (unsigned i = 0; i < n; i++) {
+        for (unsigned j = 0; j < n; j++) {
+            d[n*i + j] = D[i][j];
+        }
+    }
+    return d;
+}
+
+std::vector<unsigned> ConstrainedFDLayout::readLinearG(void)
+{
+    std::vector<unsigned> g;
+    g.resize(n*n);
+    for (unsigned i = 0; i < n; i++) {
+        for (unsigned j = 0; j < n; j++) {
+            g[n*i + j] = G[i][j];
+        }
+    }
+    return g;
+}
+
 void ConstrainedFDLayout::computeNeighbours(vector<Edge> es) {
     for (int i = 0; i < n; i++) {
         std::vector<unsigned> *v = new std::vector<unsigned>;

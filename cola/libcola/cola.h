@@ -802,6 +802,8 @@ public:
     double computeStress() const;
     bool m_doYAxisFirst;
     bool m_useNeighbourStress;
+    std::vector<double> readLinearD(void);
+    std::vector<unsigned> readLinearG(void);
 
 private:
     unsigned n; // number of nodes
