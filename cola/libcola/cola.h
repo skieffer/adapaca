@@ -804,6 +804,7 @@ public:
     bool m_useNeighbourStress;
     std::vector<double> readLinearD(void);
     std::vector<unsigned> readLinearG(void);
+    std::vector<double> getDistancesFromRect(unsigned u);
 
 private:
     unsigned n; // number of nodes

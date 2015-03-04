@@ -231,6 +231,17 @@ void ConstrainedFDLayout::computePathLengths(
     //dumpSquareMatrix<short>(n,G);
 }
 
+
+std::vector<double> ConstrainedFDLayout::getDistancesFromRect(unsigned u) {
+    std::vector<double> v;
+    for(unsigned i=0;i<n;i++) {
+        double d = D[u][i];
+        v.push_back(d);
+    }
+    return v;
+}
+
+
 typedef valarray<double> Position;
 void getPosition(Position& X, Position& Y, Position& pos) {
     unsigned n=X.size();
