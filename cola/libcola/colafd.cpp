@@ -341,6 +341,20 @@ void ConstrainedFDLayout::run(const bool xAxis, const bool yAxis)
         }
         setPosition(x1);
         stress=computeStress();
+
+        // Viewing stress and magnitude of position change: ---------
+        cout << "stress="<<stress << endl;
+        Position dx(N);
+        dx = x1 - x0;
+        double magDX = 0;
+        for(unsigned i=0;i<n;++i) {
+            magDX += dx[i]*dx[i];
+        }
+        magDX = sqrt(magDX);
+        cout << "|dx|="<<magDX << endl;
+        // ----------------------------------------------------------
+
+
         FILE_LOG(logDEBUG) << "stress="<<stress;
     } while(!(*done)(stress,X,Y));
     for(unsigned i=0;i<n;i++) {
