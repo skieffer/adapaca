@@ -9,3 +9,5 @@ cola/lib*/lib*.pc
 
 cola/test-driver
 
+cola/*/tests/*
+

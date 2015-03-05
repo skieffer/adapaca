@@ -31,5 +31,5 @@ make
 
 # The following builds examples and tests for each of the libraries.
 # Please look at these before sending me questions.
-#make check
+make check
 
