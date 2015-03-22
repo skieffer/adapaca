@@ -341,7 +341,8 @@ void ConstrainedFDLayout::run(const bool xAxis, const bool yAxis)
         }
         setPosition(x1);
         stress=computeStress();
-
+//#define WATCHCONVERGENCE
+#ifdef WATCHCONVERGENCE
         // Viewing stress and magnitude of position change: ---------
         cout << "stress="<<stress << endl;
         Position dx(N);
@@ -353,6 +354,7 @@ void ConstrainedFDLayout::run(const bool xAxis, const bool yAxis)
         magDX = sqrt(magDX);
         cout << "|dx|="<<magDX << endl;
         // ----------------------------------------------------------
+#endif
 
 
         FILE_LOG(logDEBUG) << "stress="<<stress;
