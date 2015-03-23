@@ -297,6 +297,14 @@ public:
         constrainedLayout = true;
         this->ccs=ccs;
     }
+    void setConstraintsVector(cola::CompoundConstraints& ccs) {
+        constrainedLayout = true;
+        cola::CompoundConstraints *ccsp = new cola::CompoundConstraints;
+        for (int i = 0; i < ccs.size(); i++) {
+            ccsp->push_back(ccs.at(i));
+        }
+        this->ccs=ccsp;
+    }
     /**
      * @brief Register to receive information about unsatisfiable constraints.
      *
@@ -500,6 +508,13 @@ private:
     bool externalSolver;
     bool majorization;
 };
+
+ConstrainedMajorizationLayout* simpleCMLFactory(
+        vpsc::Rectangles& rs,
+        std::vector<Edge> const & es,
+        const double idealLength,
+        bool useNeighbourStress = false
+    );
 
 vpsc::Rectangle bounds(vpsc::Rectangles& rs);
 

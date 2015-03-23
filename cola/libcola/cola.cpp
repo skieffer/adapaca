@@ -683,4 +683,18 @@ Rectangle bounds(vector<Rectangle*>& rs) {
     }
 #endif
 
+ConstrainedMajorizationLayout* simpleCMLFactory(
+        vpsc::Rectangles& rs,
+        std::vector<Edge> const & es,
+        const double idealLength,
+        bool useNeighbourStress
+    ) {
+    cola::EdgeLengths eLengths;
+    for(int i = 0; i < es.size(); i++) {
+        eLengths.push_back(1);
+    }
+    return new ConstrainedMajorizationLayout(rs, es, NULL, idealLength, eLengths,
+            NULL, NULL, useNeighbourStress);
+};
+
 } // namespace cola
