@@ -116,6 +116,31 @@ struct CheckProgress : TestConvergence {
         return TestConvergence::operator()(new_stress,X,Y);
     }
 };
+struct CheckProgress2 : TestConvergence {
+    CheckProgress2(const double d,const unsigned i) : TestConvergence(d,i) {}
+    virtual bool operator()(const double new_stress, std::valarray<double> & X, std::valarray<double> & Y)
+    {
+        COLA_UNUSED(X);
+        COLA_UNUSED(Y);
+
+        iterations++;
+        std::cout<<"iteration="<<iterations<<", old_stress="<<old_stress<<", new_stress="<<new_stress<<std::endl;
+        if (old_stress == DBL_MAX) {
+            old_stress = new_stress;
+            return iterations >= maxiterations;
+        }
+        // converged if relative decrease in stress falls below threshold
+        // or if stress increases (shouldn't happen for straight majorization)
+        bool converged = 
+            (old_stress - new_stress) / (new_stress + 1e-10) < tolerance
+             || iterations > maxiterations;
+        old_stress = new_stress;
+        /*
+        return converged;
+        */
+        return iterations > 100;
+    }
+};
 
 enum SolverType { CG, UGP, SGP, IP };
 void run_test(

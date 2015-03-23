@@ -1,6 +1,7 @@
 #include <vector>
 #include <utility>
 #include "libcola/cola.h"
+#include "graphlayouttest.h"
 using namespace cola;
 int main(void) {
     CompoundConstraints ccs;
@@ -4349,13 +4350,29 @@ int main(void) {
     alignment204379536->addShape(98, 0);
     ccs.push_back(alignment204379536);
 
-    ConstrainedFDLayout alg(rs, es, defaultEdgeLength, true, eLengths);
-    alg.setConstraints(ccs);
-    alg.m_useNeighbourStress = true;
-    alg.outputInstanceToSVG("metromap0");
-    alg.run(true, false);
-    alg.outputInstanceToSVG("metromap1");
-    alg.freeAssociatedObjects();
+    if(true) {
+        for(int i = 0; i < es.size(); i++) {
+            eLengths.push_back(1);
+        }
+        CheckProgress test(0.0001,200);
+        ConstrainedMajorizationLayout alg(rs,es,NULL,defaultEdgeLength,
+                eLengths,&test,NULL,true);
+        alg.setAvoidOverlaps(true);
+        alg.setScaling(false);
+        alg.setConstraints(&ccs);
+        alg.m_useNeighbourStress = true;
+        alg.run(true, false);
+    } else {
+        ConstrainedFDLayout alg(rs, es, defaultEdgeLength, true, eLengths);
+        alg.setConstraints(ccs);
+        alg.m_useNeighbourStress = true;
+        alg.outputInstanceToSVG("metromap0");
+        alg.run(true, false);
+        alg.outputInstanceToSVG("metromap1");
+        alg.freeAssociatedObjects();
+    }
+    //ConstrainedFDLayout alg(rs, es, defaultEdgeLength, true, eLengths);
+    //alg.outputInstanceToSVG("metromapfinal");
     return 0;
 };
 

@@ -286,7 +286,8 @@ public:
         const double idealLength,
         EdgeLengths eLengths = StandardEdgeLengths,
         TestConvergence *doneTest = NULL,
-        PreIteration* preIteration=NULL);
+        PreIteration* preIteration = NULL,
+	bool useNeighbourStress = false);
     /**
      * @brief  Specify a set of compound constraints to apply to the layout.
      *
@@ -421,6 +422,7 @@ public:
         constrainedLayout=c;
     }
     double computeStress();
+    bool m_useNeighbourStress;
 private:
     double euclidean_distance(unsigned i, unsigned j) {
         return sqrt(

@@ -44,7 +44,8 @@ ConstrainedMajorizationLayout
         const double idealLength,
         EdgeLengths eLengths,
         TestConvergence *doneTest,
-        PreIteration* preIteration)
+        PreIteration* preIteration,
+        bool useNeighbourStress)
     : n(rs.size()),
       lap2(valarray<double>(n*n)), 
       Dij(valarray<double>(n*n)),
@@ -67,7 +68,8 @@ ConstrainedMajorizationLayout
       xSkipping(true),
       scaling(true),
       externalSolver(false),
-      majorization(true)
+      majorization(true),
+      m_useNeighbourStress(useNeighbourStress)
 {
     if (done == NULL)
     {
@@ -99,7 +101,21 @@ ConstrainedMajorizationLayout
         }
     }
 
-    shortest_paths::johnsons(n,D,es,edgeLengths);
+    if (m_useNeighbourStress) {
+        for(unsigned i=0;i<n;i++) {
+            for(unsigned j=0;j<n;j++) {
+                D[i][j]=std::numeric_limits<double>::max();
+            }
+        }
+        for (unsigned i = 0; i < es.size(); i++) {
+            unsigned source = es[i].first;
+            unsigned target = es[i].second;
+            D[source][target] = D[target][source] = edgeLengths[i];
+        }
+    } else {
+        shortest_paths::johnsons(n,D,es,edgeLengths);
+    }
+
     //shortest_paths::neighbours(n,D,es,edgeLengths);
     edge_length = idealLength;
     if(clusterHierarchy) {
