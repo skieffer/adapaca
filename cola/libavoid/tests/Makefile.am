@@ -7,6 +7,7 @@ LDADD = $(top_builddir)/libavoid/libavoid.la
 #	unsatisfiableRangeAssertion  - really slow.
 
 check_PROGRAMS = \
+    hola01 \
 	penaltyRerouting01 \
 	treeRootCrash01 \
 	treeRootCrash02 \
@@ -85,6 +86,8 @@ check_PROGRAMS = \
 	nudgingSkipsCheckpoint01 \
 	nudgingSkipsCheckpoint02 \
 	hyperedgeRerouting01
+
+hola01_SOURCES = hola01.cpp
 
 # problem_SOURCES = problem.cpp
 
