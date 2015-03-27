@@ -2908,7 +2908,10 @@ void ImproveOrthogonalRoutes::nudgeOrthogonalRoutes(size_t dimension,
                         else if (vs[i]->id == channelRightID)
                         {
                             // This is the right-hand-side of a channel.
+#define MAYBE_ASSERTION_DOESNT_MATTER
+#ifndef MAYBE_ASSERTION_DOESNT_MATTER
                             COLA_ASSERT(unsatisfiedRanges.size() > 0);
+#endif
                             // Expand the existing range to include it.
                             unsatisfiedRanges.back().second = i;
                         }
