@@ -31,6 +31,8 @@
 #include <cstdio>
 #include <ctime>
 
+#include <chrono>
+
 #include "libavoid/shape.h"
 #include "libavoid/router.h"
 #include "libavoid/visibility.h"
@@ -643,7 +645,7 @@ void Router::processActions(void)
 
 bool Router::processTransaction(void)
 {
-    std::clock_t START_TIME = std::clock();
+    std::chrono::high_resolution_clock::time_point TIMEPOINT1 = std::chrono::high_resolution_clock::now();
 
     // If SimpleRouting, then don't update here.
     if ((actionList.empty() && (m_hyperedge_rerouter.count() == 0) &&
@@ -658,11 +660,11 @@ bool Router::processTransaction(void)
     m_static_orthogonal_graph_invalidated = true;
     rerouteAndCallbackConnectors();
 
-    std::clock_t STOP_TIME = std::clock();
-    double DURATION = (STOP_TIME - START_TIME) / (double) CLOCKS_PER_SEC;
+    std::chrono::high_resolution_clock::time_point TIMEPOINT2 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(TIMEPOINT2 - TIMEPOINT1);
     std::cout << "~~ADGTIMINGS~~ ";
     std::cout << "Router::processTransaction";
-    std::cout << " " << DURATION << std::endl;
+    std::cout << " " << time_span.count() << std::endl;
 
     return true;
 }

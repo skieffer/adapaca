@@ -29,6 +29,8 @@
 #include <cstdio>
 #include <ctime>
 
+#include <chrono>
+
 #include "libvpsc/solve_VPSC.h"
 #include "libvpsc/exceptions.h"
 #include "libcola/cc_nonoverlapconstraints.h"
@@ -212,16 +214,20 @@ bool ACALayout3::createOneAlignment(void)
 
 bool ACALayout3::applyOAsAllOrNothing(OrderedAlignments oas)
 {
-    std::clock_t START_TIME = std::clock();
+    std::chrono::high_resolution_clock::time_point TIMEPOINT1 = std::chrono::high_resolution_clock::now();
+    //std::clock_t START_TIME = std::clock();
 
     if (!m_nocsInitialised) initNOCs();
     bool b = allOrNothing(oas);
 
-    std::clock_t STOP_TIME = std::clock();
-    double DURATION = (STOP_TIME - START_TIME) / (double) CLOCKS_PER_SEC;
+    std::chrono::high_resolution_clock::time_point TIMEPOINT2 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(TIMEPOINT2 - TIMEPOINT1);
+    //std::clock_t STOP_TIME = std::clock();
+    //double DURATION = (STOP_TIME - START_TIME) / (double) CLOCKS_PER_SEC;
     std::cout << "~~ADGTIMINGS~~ ";
     std::cout << "ACALayout3::applyOAsAllOrNothing";
-    std::cout << " " << DURATION << std::endl;
+    //std::cout << " " << DURATION << std::endl;
+    std::cout << " " << time_span.count() << std::endl;
 
     return b;
 }
@@ -2001,7 +2007,8 @@ bool ACALayout3::applyIfFeasible(OrderedAlignment *oa)
 ProjectionResult projectOntoCCs(Dim dim, Rectangles &rs, CompoundConstraints ccs,
                                 bool preventOverlaps, int accept)
 {
-    std::clock_t START_TIME = std::clock();
+    std::chrono::high_resolution_clock::time_point TIMEPOINT1 = std::chrono::high_resolution_clock::now();
+    //std::clock_t START_TIME = std::clock();
 
     size_t n = rs.size();
     // Set up nonoverlap constraints if desired.
@@ -2043,11 +2050,14 @@ ProjectionResult projectOntoCCs(Dim dim, Rectangles &rs, CompoundConstraints ccs
     delete nocexemps;
     // Return
 
-    std::clock_t STOP_TIME = std::clock();
-    double DURATION = (STOP_TIME - START_TIME) / (double) CLOCKS_PER_SEC;
+    std::chrono::high_resolution_clock::time_point TIMEPOINT2 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(TIMEPOINT2 - TIMEPOINT1);
+    //std::clock_t STOP_TIME = std::clock();
+    //double DURATION = (STOP_TIME - START_TIME) / (double) CLOCKS_PER_SEC;
     std::cout << "~~ADGTIMINGS~~ ";
     std::cout << "projectOntoCCs";
-    std::cout << " " << DURATION << std::endl;
+    //std::cout << " " << DURATION << std::endl;
+    std::cout << " " << time_span.count() << std::endl;
 
     return result;
 }
