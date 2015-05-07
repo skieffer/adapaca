@@ -648,12 +648,21 @@ private:
     // The PENALTY_BOUND must be greater than the sum of the other penalty
     // values plus 1 (the maximum possible deflection score).
 
+    /*
     static const double BP_PENALTY = 2; // can be applied twice for one edge
     static const double LEAF_PENALTY = 5;
     static const double PENALTY_BOUND = 20;
 
     static const double EDGE_SHAPE_HALF_THICKNESS = 4;
     static const double EDGE_SHAPE_BUFFER = 1;
+    */
+
+    static const double BP_PENALTY; // can be applied twice for one edge
+    static const double LEAF_PENALTY;
+    static const double PENALTY_BOUND;
+
+    static const double EDGE_SHAPE_HALF_THICKNESS;
+    static const double EDGE_SHAPE_BUFFER;
 
     int m_n; // number of nodes
     int m_m; // number of edges
@@ -745,6 +754,15 @@ private:
 
     unsigned m_layoutPeriod;
 };
+
+/*
+const double ACALayout3::BP_PENALTY = 2;
+const double ACALayout3::LEAF_PENALTY = 5;
+const double ACALayout3::PENALTY_BOUND = 20;
+
+const double ACALayout3::EDGE_SHAPE_HALF_THICKNESS = 4;
+const double ACALayout3::EDGE_SHAPE_BUFFER = 1;
+*/
 
 } // namespace cola
 

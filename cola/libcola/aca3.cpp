@@ -39,6 +39,13 @@ using namespace vpsc;
 
 namespace cola {
 
+const double ACALayout3::BP_PENALTY = 2;
+const double ACALayout3::LEAF_PENALTY = 5;
+const double ACALayout3::PENALTY_BOUND = 20;
+
+const double ACALayout3::EDGE_SHAPE_HALF_THICKNESS = 4;
+const double ACALayout3::EDGE_SHAPE_BUFFER = 1;
+
 ACASepFlag negateSepFlag(ACASepFlag sf)
 {
     unsigned short c = (unsigned short) sf;

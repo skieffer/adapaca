@@ -19,8 +19,8 @@ autoreconf --install --verbose
 
 
 # Configure.
-./configure
-#./configure CPPFLAGS="-std=c++0x"
+#./configure
+./configure CPPFLAGS="-std=c++0x"
 
 # Instead, use this line if building for SWIG Java:
 # ./configure CPPFLAGS="-DUSE_ASSERT_EXCEPTIONS"

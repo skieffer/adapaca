@@ -32,7 +32,7 @@
 #include <cstdio>
 #include <ctime>
 
-//#include <chrono>
+#include <chrono>
 
 #include "libvpsc/solve_VPSC.h"
 #include "libvpsc/variable.h"
@@ -327,7 +327,7 @@ void ConstrainedFDLayout::computeDescentVectorOnBothAxes(
 void ConstrainedFDLayout::run(const bool xAxis, const bool yAxis) 
 {
 
-    //std::chrono::high_resolution_clock::time_point TIMEPOINT1 = std::chrono::high_resolution_clock::now();
+    std::chrono::high_resolution_clock::time_point TIMEPOINT1 = std::chrono::high_resolution_clock::now();
     //std::clock_t START_TIME = std::clock();
 
     // This generates constraints for non-overlap inside and outside
