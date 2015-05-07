@@ -28,6 +28,12 @@
 #include <cmath>
 #include <limits>
 
+#include <iostream>
+#include <cstdio>
+#include <ctime>
+
+//#include <chrono>
+
 #include "libvpsc/solve_VPSC.h"
 #include "libvpsc/variable.h"
 #include "libvpsc/constraint.h"
@@ -106,6 +112,9 @@ ConstrainedFDLayout::ConstrainedFDLayout(const vpsc::Rectangles& rs,
       m_edge_lengths(eLengths.data(), eLengths.size()),
       m_nonoverlap_exemptions(new NonOverlapConstraintExemptions())
 {
+    //std::chrono::steady_clock::time_point TIMEPOINT1 = std::chrono::steady_clock::now();
+    std::clock_t START_TIME = std::clock();
+
     if (done == NULL)
     {
         done = new TestConvergence();
@@ -132,6 +141,24 @@ ConstrainedFDLayout::ConstrainedFDLayout(const vpsc::Rectangles& rs,
     }
 
     computePathLengths(es,m_edge_lengths);
+
+    //steady_clock::time_point TIMEPOINT2 = steady_clock::now();
+    //duration<double> time_span = duration_cast<duration<double>>(TIMEPIONT2 - TIMEPOINT1);
+
+    std::clock_t STOP_TIME = std::clock();
+    double DURATION = (STOP_TIME - START_TIME) / (double) CLOCKS_PER_SEC;
+    //double DURATION = (STOP_TIME - START_TIME);
+
+    std::cout << "~~ADGTIMINGS~~ ";
+    std::cout << "ConstrainedFDLayout::ConstrainedFDLayout";
+
+    //std::cout << "time_span: ";
+    //std::cout << " " << time_span.count() << std::endl;
+
+    std::cout << " " << DURATION << std::endl;
+    //std::cout << "START_TIME: " << START_TIME << std::endl;
+    //std::cout << "STOP_TIME: " << STOP_TIME << std::endl;
+    //std::cout << "CLOCKS_PER_SEC: " << CLOCKS_PER_SEC << std::endl;
 }
 
 std::vector<double> ConstrainedFDLayout::readLinearD(void)
@@ -299,6 +326,10 @@ void ConstrainedFDLayout::computeDescentVectorOnBothAxes(
  */
 void ConstrainedFDLayout::run(const bool xAxis, const bool yAxis) 
 {
+
+    //std::chrono::high_resolution_clock::time_point TIMEPOINT1 = std::chrono::high_resolution_clock::now();
+    //std::clock_t START_TIME = std::clock();
+
     // This generates constraints for non-overlap inside and outside
     // of clusters.  To assign correct variable indexes it requires
     // that vs[] contains elements equal to the number of rectangles.
@@ -377,6 +408,23 @@ void ConstrainedFDLayout::run(const bool xAxis, const bool yAxis)
             delete vs[dim][i];
         }
     }
+
+    //std::chrono::high_resolution_clock::time_point TIMEPOINT2 = std::chrono::high_resolution_clock::now();
+    //std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(TIMEPOINT2 - TIMEPOINT1);
+
+    //std::clock_t STOP_TIME = std::clock();
+    //double DURATION = (STOP_TIME - START_TIME) / (double) CLOCKS_PER_SEC;
+    //double DURATION = (STOP_TIME - START_TIME);
+
+    std::cout << "~~ADGTIMINGS~~ ";
+    std::cout << "ConstrainedFDLayout::run";
+
+    //std::cout << " " << DURATION << std::endl;
+    //std::cout << "START_TIME: " << START_TIME << std::endl;
+    //std::cout << "STOP_TIME: " << STOP_TIME << std::endl;
+    //std::cout << "CLOCKS_PER_SEC: " << CLOCKS_PER_SEC << std::endl;
+
+    //std::cout << " " << time_span.count() << std::endl;
 }
 
 /*

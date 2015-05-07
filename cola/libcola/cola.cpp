@@ -21,6 +21,10 @@
 
 #include <cmath>
 
+#include <iostream>
+#include <cstdio>
+#include <ctime>
+
 #include "libvpsc/assertions.h"
 #include "libvpsc/isnan.h"
 #include "libcola/commondefs.h"
@@ -318,6 +322,9 @@ inline double ConstrainedMajorizationLayout
 }
 
 void ConstrainedMajorizationLayout::run(bool x, bool y) {
+
+    std::clock_t START_TIME = std::clock();
+
     if(constrainedLayout) {
         vector<vpsc::Rectangle*>* pbb = boundingBoxes.empty()?NULL:&boundingBoxes;
         SolveWithMosek mosek = Off;
@@ -391,6 +398,12 @@ void ConstrainedMajorizationLayout::run(bool x, bool y) {
             }
         }
     } while(!(*done)(compute_stress(Dij),X,Y));
+
+    std::clock_t STOP_TIME = std::clock();
+    double DURATION = (STOP_TIME - START_TIME) / (double) CLOCKS_PER_SEC;
+    std::cout << "~~ADGTIMINGS~~ ";
+    std::cout << "ConstrainedMajorizationLayout::run";
+    std::cout << " " << DURATION << std::endl;
 }
 double ConstrainedMajorizationLayout::computeStress() {
     return compute_stress(Dij);

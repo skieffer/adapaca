@@ -25,6 +25,10 @@
 #include <stdio.h>
 #include <set>
 
+#include <iostream>
+#include <cstdio>
+#include <ctime>
+
 #include "libvpsc/solve_VPSC.h"
 #include "libvpsc/exceptions.h"
 #include "libcola/cc_nonoverlapconstraints.h"
@@ -201,8 +205,18 @@ bool ACALayout3::createOneAlignment(void)
 
 bool ACALayout3::applyOAsAllOrNothing(OrderedAlignments oas)
 {
+    std::clock_t START_TIME = std::clock();
+
     if (!m_nocsInitialised) initNOCs();
-    return allOrNothing(oas);
+    bool b = allOrNothing(oas);
+
+    std::clock_t STOP_TIME = std::clock();
+    double DURATION = (STOP_TIME - START_TIME) / (double) CLOCKS_PER_SEC;
+    std::cout << "~~ADGTIMINGS~~ ";
+    std::cout << "ACALayout3::applyOAsAllOrNothing";
+    std::cout << " " << DURATION << std::endl;
+
+    return b;
 }
 
 void ACALayout3::layout(void)
@@ -1980,6 +1994,8 @@ bool ACALayout3::applyIfFeasible(OrderedAlignment *oa)
 ProjectionResult projectOntoCCs(Dim dim, Rectangles &rs, CompoundConstraints ccs,
                                 bool preventOverlaps, int accept)
 {
+    std::clock_t START_TIME = std::clock();
+
     size_t n = rs.size();
     // Set up nonoverlap constraints if desired.
     NonOverlapConstraintExemptions *nocexemps = NULL;
@@ -2019,6 +2035,13 @@ ProjectionResult projectOntoCCs(Dim dim, Rectangles &rs, CompoundConstraints ccs
     //delete noc;
     delete nocexemps;
     // Return
+
+    std::clock_t STOP_TIME = std::clock();
+    double DURATION = (STOP_TIME - START_TIME) / (double) CLOCKS_PER_SEC;
+    std::cout << "~~ADGTIMINGS~~ ";
+    std::cout << "projectOntoCCs";
+    std::cout << " " << DURATION << std::endl;
+
     return result;
 }
 

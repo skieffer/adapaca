@@ -27,6 +27,10 @@
 #include <cmath>
 #include <cfloat>
 
+#include <iostream>
+#include <cstdio>
+#include <ctime>
+
 #include "libavoid/shape.h"
 #include "libavoid/router.h"
 #include "libavoid/visibility.h"
@@ -639,6 +643,8 @@ void Router::processActions(void)
 
 bool Router::processTransaction(void)
 {
+    std::clock_t START_TIME = std::clock();
+
     // If SimpleRouting, then don't update here.
     if ((actionList.empty() && (m_hyperedge_rerouter.count() == 0) &&
          (m_settings_changes == false)) || SimpleRouting)
@@ -651,6 +657,12 @@ bool Router::processTransaction(void)
 
     m_static_orthogonal_graph_invalidated = true;
     rerouteAndCallbackConnectors();
+
+    std::clock_t STOP_TIME = std::clock();
+    double DURATION = (STOP_TIME - START_TIME) / (double) CLOCKS_PER_SEC;
+    std::cout << "~~ADGTIMINGS~~ ";
+    std::cout << "Router::processTransaction";
+    std::cout << " " << DURATION << std::endl;
 
     return true;
 }
