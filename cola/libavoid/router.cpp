@@ -662,14 +662,14 @@ bool Router::processTransaction(void)
 
     std::chrono::high_resolution_clock::time_point TIMEPOINT2 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(TIMEPOINT2 - TIMEPOINT1);
-    std::cout << "~~ADGTIMINGS~~ ";
-    std::cout << "Router::processTransaction";
-    std::cout << " " << time_span.count() << std::endl;
-
     std::chrono::high_resolution_clock::duration d1 = TIMEPOINT1.time_since_epoch();
     std::chrono::microseconds us1 = std::chrono::duration_cast<std::chrono::microseconds>(d1);
-    long long int ius1 = us1.count();
-    std::cout << "Initial time: " << ius1 << std::endl;
+    std::chrono::high_resolution_clock::duration d2 = TIMEPOINT2.time_since_epoch();
+    std::chrono::microseconds us2 = std::chrono::duration_cast<std::chrono::microseconds>(d2);
+    std::cout << "~~ADGTIMINGS~~ ";
+    std::cout << "Router::processTransaction";
+    std::cout << " " << time_span.count();
+    std::cout << " " << us1.count() << " " << us2.count() << std::endl;
 
     //std::chrono::duration<double> time1 = std::chrono::duration_cast<std::chrono::duration<double>>(TIMEPOINT1.time_since_epoch());
     //std::cout << "Initial time: " << time1.count() << std::endl;

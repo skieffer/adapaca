@@ -145,26 +145,14 @@ ConstrainedFDLayout::ConstrainedFDLayout(const vpsc::Rectangles& rs,
 
     std::chrono::high_resolution_clock::time_point TIMEPOINT2 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(TIMEPOINT2 - TIMEPOINT1);
-
-    //steady_clock::time_point TIMEPOINT2 = steady_clock::now();
-    //duration<double> time_span = duration_cast<duration<double>>(TIMEPIONT2 - TIMEPOINT1);
-
-    //std::clock_t STOP_TIME = std::clock();
-    //double DURATION = (STOP_TIME - START_TIME) / (double) CLOCKS_PER_SEC;
-    //double DURATION = (STOP_TIME - START_TIME);
-
+    std::chrono::high_resolution_clock::duration d1 = TIMEPOINT1.time_since_epoch();
+    std::chrono::microseconds us1 = std::chrono::duration_cast<std::chrono::microseconds>(d1);
+    std::chrono::high_resolution_clock::duration d2 = TIMEPOINT2.time_since_epoch();
+    std::chrono::microseconds us2 = std::chrono::duration_cast<std::chrono::microseconds>(d2);
     std::cout << "~~ADGTIMINGS~~ ";
     std::cout << "ConstrainedFDLayout::ConstrainedFDLayout";
-
-    //std::cout << "time_span: ";
-    //std::cout << " " << time_span.count() << std::endl;
-
-    //std::cout << " " << DURATION << std::endl;
-    //std::cout << "START_TIME: " << START_TIME << std::endl;
-    //std::cout << "STOP_TIME: " << STOP_TIME << std::endl;
-    //std::cout << "CLOCKS_PER_SEC: " << CLOCKS_PER_SEC << std::endl;
-
-    std::cout << " " << time_span.count() << std::endl;
+    std::cout << " " << time_span.count();
+    std::cout << " " << us1.count() << " " << us2.count() << std::endl;
 }
 
 std::vector<double> ConstrainedFDLayout::readLinearD(void)
@@ -417,20 +405,14 @@ void ConstrainedFDLayout::run(const bool xAxis, const bool yAxis)
 
     std::chrono::high_resolution_clock::time_point TIMEPOINT2 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(TIMEPOINT2 - TIMEPOINT1);
-
-    //std::clock_t STOP_TIME = std::clock();
-    //double DURATION = (STOP_TIME - START_TIME) / (double) CLOCKS_PER_SEC;
-    //double DURATION = (STOP_TIME - START_TIME);
-
+    std::chrono::high_resolution_clock::duration d1 = TIMEPOINT1.time_since_epoch();
+    std::chrono::microseconds us1 = std::chrono::duration_cast<std::chrono::microseconds>(d1);
+    std::chrono::high_resolution_clock::duration d2 = TIMEPOINT2.time_since_epoch();
+    std::chrono::microseconds us2 = std::chrono::duration_cast<std::chrono::microseconds>(d2);
     std::cout << "~~ADGTIMINGS~~ ";
     std::cout << "ConstrainedFDLayout::run";
-
-    //std::cout << " " << DURATION << std::endl;
-    //std::cout << "START_TIME: " << START_TIME << std::endl;
-    //std::cout << "STOP_TIME: " << STOP_TIME << std::endl;
-    //std::cout << "CLOCKS_PER_SEC: " << CLOCKS_PER_SEC << std::endl;
-
-    std::cout << " " << time_span.count() << std::endl;
+    std::cout << " " << time_span.count();
+    std::cout << " " << us1.count() << " " << us2.count() << std::endl;
 }
 
 /*
