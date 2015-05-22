@@ -35,6 +35,9 @@
 #include "libvpsc/assertions.h"
 #include "libvpsc/exceptions.h"
 
+//#define LIBVPSC_LOGGING
+//#define LOGFILE "libvpsc.log"
+
 #ifdef LIBVPSC_LOGGING
 #include <fstream>
 #endif

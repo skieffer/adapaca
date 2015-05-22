@@ -2094,6 +2094,7 @@ ProjectionResult solve(Variables &vs, Constraints &cs, Rectangles &rs)
     }
     std::string unsatinfo;
     bool DEBUG = true;
+    bool PRINT_RELATED_CONSTRAINTS = false;
     if (DEBUG) {
         std::set<Variable*> varsInvolved;
         unsatinfo += "===================================================\n";
@@ -2125,33 +2126,35 @@ ProjectionResult solve(Variables &vs, Constraints &cs, Rectangles &rs)
                 unsatinfo += "    Creator: " + cc->toString() + "\n";
             }
         }
-        unsatinfo += "--------------------------------------------------\n";
-        unsatinfo += "RELATED CONSTRAINTS:\n";
-        std::set<Variable*>::iterator lit, rit, eit = varsInvolved.end();
-        for (Constraints::iterator it=cs.begin(); it!=cs.end(); it++) {
-            Constraint *c = *it;
-            lit = varsInvolved.find(c->left);
-            rit = varsInvolved.find(c->right);
-            if (lit != eit || rit != eit) {
-                sprintf(buf, "v_%d + %f", c->left->id, c->gap);
-                unsatinfo += buf;
-                unsatinfo += c->equality ? " == " : " <= ";
-                sprintf(buf, "v_%d\n", c->right->id);
-                unsatinfo += buf;
-                if (c->left->id < rs.size()) {
-                    Rectangle *r = rs[c->left->id];
-                    sprintf(buf, "    v_%d rect: [%f, %f] x [%f, %f]\n", c->left->id,
-                            r->getMinX(), r->getMaxX(), r->getMinY(), r->getMaxY());
+        if (PRINT_RELATED_CONSTRAINTS) {
+            unsatinfo += "--------------------------------------------------\n";
+            unsatinfo += "RELATED CONSTRAINTS:\n";
+            std::set<Variable*>::iterator lit, rit, eit = varsInvolved.end();
+            for (Constraints::iterator it=cs.begin(); it!=cs.end(); it++) {
+                Constraint *c = *it;
+                lit = varsInvolved.find(c->left);
+                rit = varsInvolved.find(c->right);
+                if (lit != eit || rit != eit) {
+                    sprintf(buf, "v_%d + %f", c->left->id, c->gap);
                     unsatinfo += buf;
-                }
-                if (c->right->id < rs.size()) {
-                    Rectangle *r = rs[c->right->id];
-                    sprintf(buf, "    v_%d rect: [%f, %f] x [%f, %f]\n", c->right->id,
-                            r->getMinX(), r->getMaxX(), r->getMinY(), r->getMaxY());
+                    unsatinfo += c->equality ? " == " : " <= ";
+                    sprintf(buf, "v_%d\n", c->right->id);
                     unsatinfo += buf;
+                    if (c->left->id < rs.size()) {
+                        Rectangle *r = rs[c->left->id];
+                        sprintf(buf, "    v_%d rect: [%f, %f] x [%f, %f]\n", c->left->id,
+                                r->getMinX(), r->getMaxX(), r->getMinY(), r->getMaxY());
+                        unsatinfo += buf;
+                    }
+                    if (c->right->id < rs.size()) {
+                        Rectangle *r = rs[c->right->id];
+                        sprintf(buf, "    v_%d rect: [%f, %f] x [%f, %f]\n", c->right->id,
+                                r->getMinX(), r->getMaxX(), r->getMinY(), r->getMaxY());
+                        unsatinfo += buf;
+                    }
+                    CompoundConstraint *cc = (CompoundConstraint*)(c->creator);
+                    unsatinfo += "    Creator: " + cc->toString() + "\n";
                 }
-                CompoundConstraint *cc = (CompoundConstraint*)(c->creator);
-                unsatinfo += "    Creator: " + cc->toString() + "\n";
             }
         }
         //cout << unsatinfo;
