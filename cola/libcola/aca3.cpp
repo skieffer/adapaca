@@ -2073,7 +2073,6 @@ ProjectionResult projectOntoCCs(Dim dim, Rectangles &rs, CompoundConstraints ccs
     // Clean up
     for (Variables::iterator it=vs.begin(); it!=vs.end(); ++it) delete *it;
     for (Constraints::iterator it=cs.begin(); it!=cs.end(); ++it) delete *it;
-    // Cannot delete noc. Causes bizzare build error.
     delete noc;
     delete nocexemps;
     // Return
