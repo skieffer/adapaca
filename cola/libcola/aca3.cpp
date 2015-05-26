@@ -177,8 +177,14 @@ ACALayout3::ACALayout3(
 
 ACALayout3::~ACALayout3(void)
 {
+    std::cout << "ACDALAYOUT3 DESTRUCTOR" << std::endl;
     delete m_alignmentState;
     delete m_fdlayout;
+    delete m_nocExemptions;
+    delete m_xnocs;
+    delete m_ynocs;
+    delete m_unsatX;
+    delete m_unsatY;
     for (unsigned i = 0; i < m_ordAligns.size(); i++) {
         delete m_ordAligns.at(i);
     }
@@ -2019,6 +2025,8 @@ ProjectionResult projectOntoCCs(Dim dim, Rectangles &rs, CompoundConstraints ccs
     ProjectionResult pr;
     return pr;
     */
+
+    //std::cout << "ACDALAYOUT3 PROJECTONTOCCS" << std::endl;
 
 #ifdef DO_TIMINGS
     std::chrono::high_resolution_clock::time_point TIMEPOINT1 = std::chrono::high_resolution_clock::now();
