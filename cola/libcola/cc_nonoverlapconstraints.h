@@ -24,6 +24,9 @@
 #define COLA_CC_NONOVERLAPCONSTRAINTS_H
 
 #include <vector>
+
+#include "libcola/cola.h"
+
 #include "libcola/compound_constraints.h"
 #include "libcola/shapepair.h"
 
@@ -33,9 +36,96 @@ class Rectangle;
 
 namespace cola {
 
-class OverlapShapeOffsets;
-class ShapePairInfo;
+//class OverlapShapeOffsets;
+//class ShapePairInfo;
 class Cluster;
+
+
+// ---------------------------------------------------------------
+
+class OverlapShapeOffsets : public SubConstraintInfo
+{
+    public:
+        OverlapShapeOffsets(unsigned ind, double xOffset, double yOffset,
+                unsigned int group)
+            : SubConstraintInfo(ind),
+              cluster(NULL),
+              rectPadding(0),
+              group(group)
+        {
+            halfDim[0] = xOffset;
+            halfDim[1] = yOffset;
+        }
+        OverlapShapeOffsets(unsigned ind, Cluster *cluster, unsigned int group)
+            : SubConstraintInfo(ind),
+              cluster(cluster),
+              rectPadding(cluster->margin()),
+              group(group)
+        {
+            halfDim[0] = 0;
+            halfDim[1] = 0;
+        }
+        OverlapShapeOffsets()
+            : SubConstraintInfo(1000000),
+              cluster(NULL),
+              rectPadding(0)
+        {
+        }
+        bool usesClusterBounds(void) const
+        {
+            return (cluster && !cluster->clusterIsFromFixedRectangle());
+        }
+        void resize(double xOffset, double yOffset)
+        {
+            halfDim[0] = xOffset;
+            halfDim[1] = yOffset;
+        }
+        Cluster *cluster;
+        double halfDim[2];   // Half width and height values.
+        Box rectPadding;  // Used for cluster padding.
+        unsigned int group;
+};
+
+
+class ShapePairInfo 
+{
+    public:
+        ShapePairInfo(unsigned ind1, unsigned ind2, unsigned ord = 1) 
+            : order(ord),
+              satisfied(false),
+              processed(false)
+        {
+            COLA_ASSERT(ind1 != ind2);
+            // Assign the lesser value to varIndex1.
+            varIndex1 = (ind1 < ind2) ? ind1 : ind2;
+            // Assign the greater value to varIndex2.
+            varIndex2 = (ind1 > ind2) ? ind1 : ind2;
+        }
+        bool operator<(const ShapePairInfo& rhs) const
+        {
+            // Make sure the processed ones are at the end after sorting.
+            int processedInt = processed ? 1 : 0;
+            int rhsProcessedInt = rhs.processed ? 1 : 0;
+            if (processedInt != rhsProcessedInt)
+            {
+                return processedInt < rhsProcessedInt;
+            }
+            // Use cluster ordering for primary sorting.
+            if (order != rhs.order)
+            {
+                return order < rhs.order;
+            }
+            return overlapMax > rhs.overlapMax;
+        }
+        unsigned short order;
+        unsigned short varIndex1;
+        unsigned short varIndex2;
+        bool satisfied;
+        bool processed;
+        double overlapMax;
+};
+
+// ---------------------------------------------------------------
 
 
 // Stores IDs of all rectangles exempt from non-overlap constraints.

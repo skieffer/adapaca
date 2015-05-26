@@ -25,11 +25,7 @@
 #include <stdio.h>
 #include <set>
 
-#include <iostream>
-#include <cstdio>
-#include <ctime>
-
-#include <chrono>
+#include "libcola/timings.h"
 
 #include "libvpsc/solve_VPSC.h"
 #include "libvpsc/exceptions.h"
@@ -214,12 +210,15 @@ bool ACALayout3::createOneAlignment(void)
 
 bool ACALayout3::applyOAsAllOrNothing(OrderedAlignments oas)
 {
+#ifdef DO_TIMINGS
     std::chrono::high_resolution_clock::time_point TIMEPOINT1 = std::chrono::high_resolution_clock::now();
     //std::clock_t START_TIME = std::clock();
+#endif
 
     if (!m_nocsInitialised) initNOCs();
     bool b = allOrNothing(oas);
 
+#ifdef DO_TIMINGS
     std::chrono::high_resolution_clock::time_point TIMEPOINT2 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(TIMEPOINT2 - TIMEPOINT1);
     std::chrono::high_resolution_clock::duration d1 = TIMEPOINT1.time_since_epoch();
@@ -230,6 +229,7 @@ bool ACALayout3::applyOAsAllOrNothing(OrderedAlignments oas)
     std::cout << "ACALayout3::applyOAsAllOrNothing";
     std::cout << " " << time_span.count();
     std::cout << " " << us1.count() << " " << us2.count() << std::endl;
+#endif
 
     return b;
 }
@@ -2009,16 +2009,42 @@ bool ACALayout3::applyIfFeasible(OrderedAlignment *oa)
 ProjectionResult projectOntoCCs(Dim dim, Rectangles &rs, CompoundConstraints ccs,
                                 bool preventOverlaps, int accept)
 {
+    /*
+    //NonOverlapConstraintExemptions *nocexemps = NULL;
+    //NonOverlapConstraints *noc = NULL;
+    NonOverlapConstraintExemptions *nocexemps = new NonOverlapConstraintExemptions();
+    //noc = new NonOverlapConstraints(nocexemps);
+    NonOverlapConstraints *noc = new NonOverlapConstraints(nocexemps);
+    //delete noc;
+    ProjectionResult pr;
+    return pr;
+    */
+
+#ifdef DO_TIMINGS
     std::chrono::high_resolution_clock::time_point TIMEPOINT1 = std::chrono::high_resolution_clock::now();
     //std::clock_t START_TIME = std::clock();
+#endif
 
     size_t n = rs.size();
     // Set up nonoverlap constraints if desired.
     NonOverlapConstraintExemptions *nocexemps = NULL;
+
+//#define TRY_UNIQUE_PTR
+#ifdef TRY_UNIQUE_PTR
+    std::unique_ptr<NonOverlapConstraints> noc;
+#else
     NonOverlapConstraints *noc = NULL;
+#endif
+
     if (preventOverlaps) {
         nocexemps = new NonOverlapConstraintExemptions();
+
+#ifdef TRY_UNIQUE_PTR
+        noc = std::make_unique<NonOverlapConstraints>();
+#else
         noc = new NonOverlapConstraints(nocexemps);
+#endif
+
         for (unsigned i = 0; i < n; i++) {
             noc->addShape(i, rs[i]->width()/2.0, rs[i]->height()/2.0);
         }
@@ -2048,10 +2074,11 @@ ProjectionResult projectOntoCCs(Dim dim, Rectangles &rs, CompoundConstraints ccs
     for (Variables::iterator it=vs.begin(); it!=vs.end(); ++it) delete *it;
     for (Constraints::iterator it=cs.begin(); it!=cs.end(); ++it) delete *it;
     // Cannot delete noc. Causes bizzare build error.
-    //delete noc;
+    delete noc;
     delete nocexemps;
     // Return
 
+#ifdef DO_TIMINGS
     std::chrono::high_resolution_clock::time_point TIMEPOINT2 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(TIMEPOINT2 - TIMEPOINT1);
     std::chrono::high_resolution_clock::duration d1 = TIMEPOINT1.time_since_epoch();
@@ -2062,6 +2089,7 @@ ProjectionResult projectOntoCCs(Dim dim, Rectangles &rs, CompoundConstraints ccs
     std::cout << "projectOntoCCs";
     std::cout << " " << time_span.count();
     std::cout << " " << us1.count() << " " << us2.count() << std::endl;
+#endif
 
     return result;
 }

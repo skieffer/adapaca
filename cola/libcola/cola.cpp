@@ -21,11 +21,7 @@
 
 #include <cmath>
 
-#include <iostream>
-#include <cstdio>
-#include <ctime>
-
-#include <chrono>
+#include "libcola/timings.h"
 
 #include "libvpsc/assertions.h"
 #include "libvpsc/isnan.h"
@@ -325,7 +321,9 @@ inline double ConstrainedMajorizationLayout
 
 void ConstrainedMajorizationLayout::run(bool x, bool y) {
 
+#ifdef DO_TIMINGS
     std::chrono::high_resolution_clock::time_point TIMEPOINT1 = std::chrono::high_resolution_clock::now();
+#endif
 
     if(constrainedLayout) {
         vector<vpsc::Rectangle*>* pbb = boundingBoxes.empty()?NULL:&boundingBoxes;
@@ -401,6 +399,7 @@ void ConstrainedMajorizationLayout::run(bool x, bool y) {
         }
     } while(!(*done)(compute_stress(Dij),X,Y));
 
+#ifdef DO_TIMINGS
     std::chrono::high_resolution_clock::time_point TIMEPOINT2 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(TIMEPOINT2 - TIMEPOINT1);
     std::chrono::high_resolution_clock::duration d1 = TIMEPOINT1.time_since_epoch();
@@ -411,6 +410,7 @@ void ConstrainedMajorizationLayout::run(bool x, bool y) {
     std::cout << "ConstrainedMajorizationLayout::run";
     std::cout << " " << time_span.count();
     std::cout << " " << us1.count() << " " << us2.count() << std::endl;
+#endif
 }
 double ConstrainedMajorizationLayout::computeStress() {
     return compute_stress(Dij);

@@ -28,11 +28,7 @@
 #include <cmath>
 #include <limits>
 
-#include <iostream>
-#include <cstdio>
-#include <ctime>
-
-#include <chrono>
+#include "libcola/timings.h"
 
 #include "libvpsc/solve_VPSC.h"
 #include "libvpsc/variable.h"
@@ -112,9 +108,11 @@ ConstrainedFDLayout::ConstrainedFDLayout(const vpsc::Rectangles& rs,
       m_edge_lengths(eLengths.data(), eLengths.size()),
       m_nonoverlap_exemptions(new NonOverlapConstraintExemptions())
 {
+#ifdef DO_TIMINGS
     std::chrono::high_resolution_clock::time_point TIMEPOINT1 = std::chrono::high_resolution_clock::now();
     //std::chrono::steady_clock::time_point TIMEPOINT1 = std::chrono::steady_clock::now();
-    std::clock_t START_TIME = std::clock();
+    //std::clock_t START_TIME = std::clock();
+#endif
 
     if (done == NULL)
     {
@@ -143,6 +141,7 @@ ConstrainedFDLayout::ConstrainedFDLayout(const vpsc::Rectangles& rs,
 
     computePathLengths(es,m_edge_lengths);
 
+#ifdef DO_TIMINGS
     std::chrono::high_resolution_clock::time_point TIMEPOINT2 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(TIMEPOINT2 - TIMEPOINT1);
     std::chrono::high_resolution_clock::duration d1 = TIMEPOINT1.time_since_epoch();
@@ -153,6 +152,7 @@ ConstrainedFDLayout::ConstrainedFDLayout(const vpsc::Rectangles& rs,
     std::cout << "ConstrainedFDLayout::ConstrainedFDLayout";
     std::cout << " " << time_span.count();
     std::cout << " " << us1.count() << " " << us2.count() << std::endl;
+#endif
 }
 
 std::vector<double> ConstrainedFDLayout::readLinearD(void)
@@ -321,8 +321,10 @@ void ConstrainedFDLayout::computeDescentVectorOnBothAxes(
 void ConstrainedFDLayout::run(const bool xAxis, const bool yAxis) 
 {
 
+#ifdef DO_TIMINGS
     std::chrono::high_resolution_clock::time_point TIMEPOINT1 = std::chrono::high_resolution_clock::now();
     //std::clock_t START_TIME = std::clock();
+#endif
 
     // This generates constraints for non-overlap inside and outside
     // of clusters.  To assign correct variable indexes it requires
@@ -403,6 +405,7 @@ void ConstrainedFDLayout::run(const bool xAxis, const bool yAxis)
         }
     }
 
+#ifdef DO_TIMINGS
     std::chrono::high_resolution_clock::time_point TIMEPOINT2 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(TIMEPOINT2 - TIMEPOINT1);
     std::chrono::high_resolution_clock::duration d1 = TIMEPOINT1.time_since_epoch();
@@ -413,6 +416,7 @@ void ConstrainedFDLayout::run(const bool xAxis, const bool yAxis)
     std::cout << "ConstrainedFDLayout::run";
     std::cout << " " << time_span.count();
     std::cout << " " << us1.count() << " " << us2.count() << std::endl;
+#endif
 }
 
 /*

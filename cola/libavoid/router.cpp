@@ -27,11 +27,7 @@
 #include <cmath>
 #include <cfloat>
 
-#include <iostream>
-#include <cstdio>
-#include <ctime>
-
-#include <chrono>
+#include "libcola/timings.h"
 
 #include "libavoid/shape.h"
 #include "libavoid/router.h"
@@ -645,7 +641,9 @@ void Router::processActions(void)
 
 bool Router::processTransaction(void)
 {
+#ifdef DO_TIMINGS
     std::chrono::high_resolution_clock::time_point TIMEPOINT1 = std::chrono::high_resolution_clock::now();
+#endif
 
     // If SimpleRouting, then don't update here.
     if ((actionList.empty() && (m_hyperedge_rerouter.count() == 0) &&
@@ -660,6 +658,7 @@ bool Router::processTransaction(void)
     m_static_orthogonal_graph_invalidated = true;
     rerouteAndCallbackConnectors();
 
+#ifdef DO_TIMINGS
     std::chrono::high_resolution_clock::time_point TIMEPOINT2 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(TIMEPOINT2 - TIMEPOINT1);
     std::chrono::high_resolution_clock::duration d1 = TIMEPOINT1.time_since_epoch();
@@ -670,9 +669,9 @@ bool Router::processTransaction(void)
     std::cout << "Router::processTransaction";
     std::cout << " " << time_span.count();
     std::cout << " " << us1.count() << " " << us2.count() << std::endl;
-
     //std::chrono::duration<double> time1 = std::chrono::duration_cast<std::chrono::duration<double>>(TIMEPOINT1.time_since_epoch());
     //std::cout << "Initial time: " << time1.count() << std::endl;
+#endif
 
     return true;
 }

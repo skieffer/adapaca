@@ -69,6 +69,7 @@ bool NonOverlapConstraintExemptions::shapePairIsExempt(
 // NonOverlapConstraints code
 //-----------------------------------------------------------------------------
 
+/*
 class OverlapShapeOffsets : public SubConstraintInfo
 {
     public:
@@ -150,6 +151,7 @@ class ShapePairInfo
         bool processed;
         double overlapMax;
 };
+*/
 
 
 NonOverlapConstraints::NonOverlapConstraints(
