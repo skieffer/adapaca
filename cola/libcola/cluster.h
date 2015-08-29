@@ -32,6 +32,7 @@
 #include "libcola/commondefs.h"
 #include "libcola/box.h"
 #include "libcola/shapepair.h"
+#include "../libvpsc/rectangle.h"
 
 namespace cola {
 

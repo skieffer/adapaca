@@ -40,12 +40,12 @@ fi
 AC_SUBST(AM_LDFLAGS)
 
 #AC_CHECK_LIB(cairomm-1.0,cairo_create)
-PKG_CHECK_MODULES(CAIROMM,cairomm-1.0,cairomm=yes,cairomm=no)
-if test "x$cairomm" = "xyes"; then
-	AC_DEFINE(HAVE_CAIROMM, 1, [Enable CairoMM code])
-fi
-AC_SUBST(CAIROMM_CFLAGS)
-AC_SUBST(CAIROMM_LIBS)
+#PKG_CHECK_MODULES(CAIROMM,cairomm-1.0,cairomm=yes,cairomm=no)
+#if test "x$cairomm" = "xyes"; then
+#	AC_DEFINE(HAVE_CAIROMM, 1, [Enable CairoMM code])
+#fi
+#AC_SUBST(CAIROMM_CFLAGS)
+#AC_SUBST(CAIROMM_LIBS)
 
 AH_BOTTOM([ 
   

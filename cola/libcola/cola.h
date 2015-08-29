@@ -36,6 +36,7 @@
 #include "libcola/straightener.h"
 #include "libcola/exceptions.h"
 #include "libcola/stress_terms.h"
+#include "cluster.h"
 
 namespace vpsc { class Rectangle; }
 namespace topology { 
@@ -512,6 +513,7 @@ private:
 ConstrainedMajorizationLayout* simpleCMLFactory(
         vpsc::Rectangles& rs,
         std::vector<Edge> const & es,
+        RootCluster* clusterHierarchy,
         const double idealLength,
         bool useNeighbourStress = false
     );

@@ -706,6 +706,7 @@ Rectangle bounds(vector<Rectangle*>& rs) {
 ConstrainedMajorizationLayout* simpleCMLFactory(
         vpsc::Rectangles& rs,
         std::vector<Edge> const & es,
+        RootCluster* clusterHierarchy,
         const double idealLength,
         bool useNeighbourStress
     ) {
@@ -713,7 +714,7 @@ ConstrainedMajorizationLayout* simpleCMLFactory(
     for(int i = 0; i < es.size(); i++) {
         eLengths.push_back(1);
     }
-    return new ConstrainedMajorizationLayout(rs, es, NULL, idealLength, eLengths,
+    return new ConstrainedMajorizationLayout(rs, es, clusterHierarchy, idealLength, eLengths,
             NULL, NULL, useNeighbourStress);
 };
 

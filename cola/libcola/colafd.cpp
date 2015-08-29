@@ -49,6 +49,8 @@
 // Needs to come last since it will include windows.h on WIN32 and
 // may mess up C++ std library include on GCC 4.4
 #include "libcola/cola_log.h"
+#include "cola.h"
+#include "cc_clustercontainmentconstraints.h"
 
 using namespace std;
 using vpsc::XDIM;
