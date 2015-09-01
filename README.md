@@ -1,3 +1,13 @@
+Adapaca
+=======
+
+Adapaca is an experimental fork of the [Adaptagrams][repo] layout
+library. Its name stands for "Adaptagrams with ACA," where ACA is our "Adaptive
+Constrained Alignment" algorithm.
+
+Below the README for Adaptagrams is reproduced.
+
+
 Adaptagrams
 ===========
 
